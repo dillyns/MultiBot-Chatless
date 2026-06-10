@@ -5,8 +5,7 @@ with all spec builds returned by the command  /w <bot> "talents spec list".
 ]]--
 
 local function getSpecIcons()
-  local dataProvider = MultiBot.GetIconosEntries
-  local icons = type(dataProvider) == "function" and dataProvider() or (MultiBot.data and MultiBot.data.iconos)
+  local icons = MultiBot.data and MultiBot.data.iconos
   if type(icons) ~= "table" then
     return {}
   end

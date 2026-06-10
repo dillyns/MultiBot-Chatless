@@ -275,10 +275,9 @@ local function hideIconosTooltip(window)
 end
 
 local function getIconosEntries()
-    local dataProvider = MultiBot.GetIconosEntries
-    local data = type(dataProvider) == "function" and dataProvider() or (MultiBot.data and MultiBot.data.iconos)
+    local data = MultiBot.data and MultiBot.data.iconos
     if type(data) ~= "table" then
-        return nil
+        return {}
     end
     return data
 end
@@ -308,27 +307,15 @@ local function normalizeIconosSearchQuery(value)
 end
 
 local function ensureIconosEntryCache(iconos)
-    if not iconos then
+    if not iconos or iconos.entryCache then
         return
     end
 
     local entries = getIconosEntries()
-    local entryCount = entries and #entries or 0
-
-    if iconos.entrySource == entries and iconos.entrySourceCount == entryCount and iconos.entryCache then
-        return
-    end
-
-    iconos.entrySource = entries
-    iconos.entrySourceCount = entryCount
     iconos.entryCache = {}
     iconos.visibleEntryCache = nil
     iconos.visibleEntryCacheKey = nil
     iconos.invalidEntryCount = 0
-
-    if not entries then
-        return
-    end
 
     for index, texturePath in ipairs(entries) do
         if type(texturePath) == "string" and texturePath ~= "" then
@@ -341,7 +328,7 @@ local function ensureIconosEntryCache(iconos)
                 pathLower = tostring(texturePath):lower(),
             }
         else
-            iconos.invalidEntryCount = (iconos.invalidEntryCount or 0) + 1
+            iconos.invalidEntryCount = iconos.invalidEntryCount + 1
         end
     end
 end
@@ -577,15 +564,11 @@ local function getIconosEmptyStateText(iconos, iconCount)
         return "No icons match the current filter."
     end
 
-    if not getIconosEntries() then
+    if (iconos.invalidEntryCount or 0) == 0 then
         return "Icon data is unavailable."
     end
 
-    if (iconos and iconos.invalidEntryCount or 0) > 0 and (iconos.entrySourceCount or 0) <= (iconos.invalidEntryCount or 0) then
-        return "Icon data is present but contains no usable entries."
-    end
-
-    return "No icons available."
+    return "Icon data is present but contains no usable entries."
 end
 
 local function updateIconosNavigation(iconos, iconCount)
