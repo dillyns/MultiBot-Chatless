@@ -1,115 +1,95 @@
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
+
+local DK_PRESENCE_BLOOD  = "blood"
+local DK_PRESENCE_FROST  = "frost"
+local DK_PRESENCE_UNHOLY = "unholy"
+
+local DK_STRAT_FROST_AOE  = "frost aoe"
+local DK_STRAT_UNHOLY_AOE = "unholy aoe"
+
+local DK_PLAYBOOK_DEFAULT_ICON = "spell_deathknight_bloodpresence"
+local DK_PLAYBOOK_ICONS = {
+	[DK_PRESENCE_BLOOD]  = "spell_deathknight_bloodpresence",
+	[DK_PRESENCE_FROST]  = "spell_deathknight_frostpresence",
+	[DK_PRESENCE_UNHOLY] = "spell_deathknight_unholypresence",
+}
+
+local function setPlaybookIcon(pButton, presence)
+	local btn = pButton.getButton("Playbook")
+	if not btn then return end
+	local icon = (presence and DK_PLAYBOOK_ICONS[presence]) or DK_PLAYBOOK_DEFAULT_ICON
+	if btn.setTexture then btn.setTexture(icon) end
+end
+
+local PLAYBOOK_BUTTONS = { "Blood", "Frost", "Unholy" }
+
+local function addPlaybookButton(tFrame, name, x, y, icon, tipKey, presence)
+	tFrame.addButton(name, x, y, icon, MultiBot.L(tipKey)).setDisable()
+	.doLeft = function(pButton)
+		if MultiBot.OnOffActionToTarget(pButton, "co +" .. presence, "co -" .. presence, pButton.getName()) then
+			setPlaybookIcon(pButton, presence)
+			for _, other in ipairs(PLAYBOOK_BUTTONS) do
+				if other ~= name then pButton.getButton(other).setDisable() end
+			end
+		else
+			setPlaybookIcon(pButton, nil)
+		end
+	end
+end
+
 MultiBot.addDeathKnight = function(pFrame, pCombat, pNormal)
-	local tButton = pFrame.addButton("Presence", 0, 0, "spell_deathknight_bloodpresence", MultiBot.L("tips.deathknight.presence.master")).setDisable()
-	tButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("Presence"))
-	end
 
-	local tFrame = pFrame.addFrame("Presence", -2, 30)
-	tFrame:Hide()
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
 
-	tFrame.addButton("Unholy", 0, 0, "spell_deathknight_unholypresence", MultiBot.L("tips.deathknight.presence.unholy"))
+	-- PLAYBOOK --
+
+	pFrame.addButton("Playbook", -60, 0, DK_PLAYBOOK_DEFAULT_ICON, MultiBot.L("tips.deathknight.playbook.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Presence", pButton.texture, "co +unholy,?", pButton.getName())
-		pButton.getButton("Presence").doRight = function()
-			MultiBot.OnOffActionToTarget(pButton, "co +unholy,?", "co -unholy,?", pButton.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	tFrame.addButton("Frost", 0, 26, "spell_deathknight_frostpresence", MultiBot.L("tips.deathknight.presence.frost"))
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
+
+	addPlaybookButton(tPlaybookFrame, "Blood",  0,  0, DK_PLAYBOOK_ICONS[DK_PRESENCE_BLOOD],  "tips.deathknight.playbook.blood",  DK_PRESENCE_BLOOD)
+	addPlaybookButton(tPlaybookFrame, "Frost",  0, 26, DK_PLAYBOOK_ICONS[DK_PRESENCE_FROST],  "tips.deathknight.playbook.frost",  DK_PRESENCE_FROST)
+	addPlaybookButton(tPlaybookFrame, "Unholy", 0, 52, DK_PLAYBOOK_ICONS[DK_PRESENCE_UNHOLY], "tips.deathknight.playbook.unholy", DK_PRESENCE_UNHOLY)
+
+	-- DK STRATEGIES --
+
+	pFrame.addButton("DkControl", -90, 0, "ability_warrior_challange", MultiBot.L("tips.deathknight.strategy.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Presence", pButton.texture, "co +frost,?", pButton.getName())
-		pButton.getButton("Presence").doRight = function()
-			MultiBot.OnOffActionToTarget(pButton, "co +frost,?", "co -frost,?", pButton.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("DkControlFrame"))
 	end
 
-	tFrame.addButton("Blood", 0, 52, "spell_deathknight_bloodpresence", MultiBot.L("tips.deathknight.presence.blood"))
+	local tControlFrame = pFrame.addFrame("DkControlFrame", -92, 30)
+	tControlFrame:Hide()
+
+	tControlFrame.addButton("FrostAoe", 0, 0, "spell_frost_frostbolt02", MultiBot.L("tips.deathknight.strategy.frostAoe")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Presence", pButton.texture, "co +blood,?", pButton.getName())
-		pButton.getButton("Presence").doRight = function()
-			MultiBot.OnOffActionToTarget(pButton, "co +blood,?", "co -blood,?", pButton.getName())
+		if MultiBot.OnOffActionToTarget(pButton, "co +" .. DK_STRAT_FROST_AOE, "co -" .. DK_STRAT_FROST_AOE, pButton.getName()) then
+			pButton.getButton("UnholyAoe").setDisable()
 		end
 	end
 
-	-- SRATEGIES:PRESENCE ---
-
-	if(MultiBot.isInside(pCombat, "unholy")) then
-		tButton.setTexture("spell_deathknight_unholypresence").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +unholy,?", "co -unholy,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "frost")) then
-		tButton.setTexture("spell_deathknight_frostpresence").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +frost,?", "co -frost,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "blood")) then
-		tButton.setTexture("spell_deathknight_bloodpresence").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +blood,?", "co -blood,?", pButton.getName())
-		end
-	end
-
-	-- DPS --
-
-	pFrame.addButton("DpsControl", -30, 0, "ability_warrior_challange", MultiBot.L("tips.deathknight.dps.master"))
+	tControlFrame.addButton("UnholyAoe", 0, 26, "spell_fire_felflamering", MultiBot.L("tips.deathknight.strategy.unholyAoe")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
-	end
-
-	local tDpsFrame = pFrame.addFrame("DpsControl", -32, 30)
-	tDpsFrame:Hide()
-
-	tDpsFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.deathknight.dps.dpsAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
+		if MultiBot.OnOffActionToTarget(pButton, "co +" .. DK_STRAT_UNHOLY_AOE, "co -" .. DK_STRAT_UNHOLY_AOE, pButton.getName()) then
+			pButton.getButton("FrostAoe").setDisable()
 		end
 	end
 
-	tDpsFrame.addButton("DpsAoe", 0, 26, "spell_holy_surgeoflight", MultiBot.L("tips.deathknight.dps.dpsAoe")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
+	-- SET STRATS --
+
+	local _playbook = nil
+	if     MultiBot.isInside(pCombat, DK_PRESENCE_BLOOD)  then _playbook = DK_PRESENCE_BLOOD  pFrame.getButton("Blood").setEnable()
+	elseif MultiBot.isInside(pCombat, DK_PRESENCE_FROST)  then _playbook = DK_PRESENCE_FROST  pFrame.getButton("Frost").setEnable()
+	elseif MultiBot.isInside(pCombat, DK_PRESENCE_UNHOLY) then _playbook = DK_PRESENCE_UNHOLY pFrame.getButton("Unholy").setEnable()
 	end
+	setPlaybookIcon(pFrame, _playbook)
 
-    -- missing CLASS AOE (Frost/Unholy) --
-
-	tDpsFrame.addButton("FrostAoe", 0, 52, "spell_frost_frostbolt02", MultiBot.L("tips.deathknight.dps.frostAoe")).setDisable() -- Variable a créér
-    .doLeft = function(pButton)
-        if(MultiBot.OnOffActionToTarget(pButton, "co +frost aoe,?", "co -frost aoe,?", pButton.getName())) then
-            pButton.getButton("DpsAoe").setDisable()
-            pButton.getButton("UnholyAoe").setDisable()
-        end
-    end
-
-	tDpsFrame.addButton("UnholyAoe", 0, 78, "spell_fire_felflamering", MultiBot.L("tips.deathknight.dps.unholyAoe")).setDisable() -- Variable à créer
-    .doLeft = function(pButton)
-        if(MultiBot.OnOffActionToTarget(pButton, "co +unholy aoe,?", "co -unholy aoe,?", pButton.getName())) then
-            pButton.getButton("DpsAoe").setDisable()
-            pButton.getButton("FrostAoe").setDisable()
-        end
-    end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, tDpsFrame, pCombat, 104)
-	end
-
-	-- ASSIST --
-
-	pFrame.addButton("TankAssist", -60, 0, "ability_warrior_innerrage", MultiBot.L("tips.deathknight.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	-- STRATEGIES --
-
-	if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
-    if(MultiBot.isInside(pCombat, "frost aoe"))   then pFrame.getButton("FrostAoe").setEnable()   end
-    if(MultiBot.isInside(pCombat, "unholy aoe"))  then pFrame.getButton("UnholyAoe").setEnable()  end
+	if MultiBot.isInside(pCombat, DK_STRAT_FROST_AOE)  then pFrame.getButton("FrostAoe").setEnable()  end
+	if MultiBot.isInside(pCombat, DK_STRAT_UNHOLY_AOE) then pFrame.getButton("UnholyAoe").setEnable() end
 end
