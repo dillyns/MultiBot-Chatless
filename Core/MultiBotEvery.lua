@@ -181,25 +181,10 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 		pButton.doHide()
 	end
 
-	pFrame.addButton("Food", 154, 0, "inv_drink_24_sealwhey", MultiBot.L("tips.every.food")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "nc +food,?", "nc -food,?", pButton.getName())
-	end
-
-	pFrame.addButton("Loot", 184, 0, "inv_misc_coin_16", MultiBot.L("tips.every.loot")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "nc +loot,?", "nc -loot,?", pButton.getName())
-	end
-
-	pFrame.addButton("Gather", 214, 0, "trade_mining", MultiBot.L("tips.every.gather")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "nc +gather,?", "nc -gather,?", pButton.getName())
-	end
-
 	-- Selfbot is not allowed to use these Tools --
 	if(pFrame.getName() == UnitName("player")) then return end
 
-	pFrame.addButton("Inventory", 244, 0, "inv_misc_bag_08", MultiBot.L("tips.every.inventory")).setDisable()
+	pFrame.addButton("Inventory", 154, 0, "inv_misc_bag_08", MultiBot.L("tips.every.inventory")).setDisable()
 	.doLeft = function(pButton)
 		if(pButton.state) then
 			MultiBot.inventory:Hide()
@@ -223,14 +208,14 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 		end
 	end
 
-	pFrame.addButton("Outfits", 364, 0, "inv_chest_chain_15", MultiBot.L("tips.every.outfits", "Outfits")).setDisable()
+	pFrame.addButton("Outfits", 274, 0, "inv_chest_chain_15", MultiBot.L("tips.every.outfits", "Outfits")).setDisable()
 	.doLeft = function(pButton)
 		if(MultiBot.OpenBotOutfits) then
 			MultiBot.OpenBotOutfits(pButton.getName(), pButton)
 		end
 	end
 
-	pFrame.addButton("Trainer", 394, 0, "spell_holy_magicalsentry", MultiBot.L("tips.every.trainer", "Trainer")).setDisable()
+	pFrame.addButton("Trainer", 304, 0, "spell_holy_magicalsentry", MultiBot.L("tips.every.trainer", "Trainer")).setDisable()
 	.doLeft = function(pButton)
 		if(MultiBot.OpenBotTrainer) then
 			MultiBot.OpenBotTrainer(pButton.getName(), pButton)
@@ -239,28 +224,26 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 
 	local botName = pFrame.getName and pFrame.getName() or nil
 	if MultiBot.BuildBotRTIUI and botName and botName ~= "" then
-		MultiBot.BuildBotRTIUI(pFrame, botName, 424, 0)
+		MultiBot.BuildBotRTIUI(pFrame, botName, 334, 0)
 	end
 
-	local combatFrame = pFrame.addFrame("CombatCommands", 454, 29, nil, 58, 114)
+	local combatFrame = pFrame.addFrame("CombatCommands", 364, 29, nil, 58, 88)
 	combatFrame:Hide()
 	combatFrame._mbDropdownManaged = true
 
-	pFrame.addButton("Combat", 454, 0, "Ability_Warrior_BattleShout", MultiBot.L("tips.every.combat"))
+	pFrame.addButton("Combat", 364, 0, "Ability_Warrior_BattleShout", MultiBot.L("tips.every.combat"))
 	.doLeft = function()
 		MultiBot.ShowHideSwitch(combatFrame)
 	end
 
-	addBotCombatButton(combatFrame, "CombatFocus", -28, 84, "Ability_Hunter_MasterMarksman", MultiBot.L("tips.every.combatfocus"), "co +focus", "co -focus")
-	addBotCombatButton(combatFrame, "CombatAoe", 0, 84, "Spell_Fire_SelfDestruct", MultiBot.L("tips.every.combataoe"), "co +aoe", "co -aoe")
-	addBotCombatButton(combatFrame, "CombatDpsAssist", -28, 56, "Ability_Hunter_Assassinate2", MultiBot.L("tips.every.combatdpsassist"), "co +dps assist", "co -dps assist")
-	addBotCombatButton(combatFrame, "CombatTankAssist", 0, 56, "Ability_Warrior_DefensiveStance", MultiBot.L("tips.every.combattankassist"), "co +tank assist", "co -tank assist")
+	addBotCombatButton(combatFrame, "CombatFocus", -28, 56, "Ability_Hunter_MasterMarksman", MultiBot.L("tips.every.combatfocus"), "co +focus", "co -focus")
+	addBotCombatButton(combatFrame, "CombatAoe", 0, 56, "Spell_Fire_SelfDestruct", MultiBot.L("tips.every.combataoe"), "co +aoe", "co -aoe")
 	addBotCombatButton(combatFrame, "CombatWait0", -28, 28, "Spell_Holy_BorrowedTime", MultiBot.L("tips.every.combatwait0"), "wait for attack time 0")
 	addBotCombatButton(combatFrame, "CombatWait3", 0, 28, "Spell_Holy_BorrowedTime", MultiBot.L("tips.every.combatwait3"), "wait for attack time 3")
 	addBotCombatButton(combatFrame, "CombatWait5", -28, 0, "Spell_Holy_BorrowedTime", MultiBot.L("tips.every.combatwait5"), "wait for attack time 5")
 	addBotCombatButton(combatFrame, "CombatWait10", 0, 0, "Spell_Holy_BorrowedTime", MultiBot.L("tips.every.combatwait10"), "wait for attack time 10")
 
-	pFrame.addButton("Spellbook", 274, 0, "inv_misc_book_09", MultiBot.L("tips.every.spellbook")).setDisable()
+	pFrame.addButton("Spellbook", 184, 0, "inv_misc_book_09", MultiBot.L("tips.every.spellbook")).setDisable()
 	.doLeft = function(pButton)
 		if(pButton.state) then
 			MultiBot.spellbook:Hide()
@@ -292,7 +275,7 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 		end
 	end
 
-	pFrame.addButton("Talent", 304, 0, "ability_marksmanship", MultiBot.L("tips.every.talent")).setDisable()
+	pFrame.addButton("Talent", 214, 0, "ability_marksmanship", MultiBot.L("tips.every.talent")).setDisable()
 	.doLeft = function(pButton)
 		if(pButton.state) then
 			pButton.setDisable()
@@ -323,7 +306,7 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 
 	-- BOUTON SETTALENTS : toggle affichage de la barre des specs
     local btn = pFrame
-        .addButton("SetTalents", 334, 0, "inv_sword_22", MultiBot.L("tips.every.settalent"))
+        .addButton("SetTalents", 244, 0, "inv_sword_22", MultiBot.L("tips.every.settalent"))
     -- état initial : toujours désactivé (zen, pas de barre affichée au load)
     btn:setDisable()
 
@@ -341,12 +324,9 @@ MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 
 -- STRATEGIES --
 
-	if(MultiBot.isInside(pNormal, "food")) then pFrame.getButton("Food").setEnable() end
-	if(MultiBot.isInside(pNormal, "loot")) then pFrame.getButton("Loot").setEnable() end
-	if(MultiBot.isInside(pNormal, "gather")) then pFrame.getButton("Gather").setEnable() end
 end
 
-local function sendCommonCombatStrategy(pButton, command)
+local function sendCommonStrategy(pButton, command)
 	local botName = pButton and pButton.getName and pButton.getName() or nil
 	if type(botName) ~= "string" or botName == "" then
 		return false
@@ -360,15 +340,15 @@ local function sendCommonCombatStrategy(pButton, command)
 	return true
 end
 
-local function addCommonCombatStrategyButton(pFrame, pCombat, tFrame, buttonName, y, icon, tipKey, strategyName)
-	if not pFrame or not tFrame or not tFrame.addButton then
+local function addCommonStrategyButton(pFrame, pState, buttonName, y, icon, tipKey, strategyName, prefix)
+	if not pFrame or not pFrame.addButton then
 		return
 	end
 
-	local plusCommand = "co +" .. strategyName
-	local minusCommand = "co -" .. strategyName
+	local plusCommand  = prefix .. " +" .. strategyName
+	local minusCommand = prefix .. " -" .. strategyName
 
-	local button = tFrame.addButton(
+	local button = pFrame.addButton(
 		buttonName,
 		0,
 		y,
@@ -378,22 +358,58 @@ local function addCommonCombatStrategyButton(pFrame, pCombat, tFrame, buttonName
 
 	button.doLeft = function(self)
 		if MultiBot.OnOffSwitch(self) then
-			sendCommonCombatStrategy(self, plusCommand)
+			sendCommonStrategy(self, plusCommand)
 		else
-			sendCommonCombatStrategy(self, minusCommand)
+			sendCommonStrategy(self, minusCommand)
 		end
 	end
 
-	if MultiBot.isInside(pCombat, strategyName) then
-		pFrame.getButton(buttonName).setEnable()
+	if MultiBot.isInside(pState, strategyName) then
+		button.setEnable()
 	end
 end
 
 function MultiBot.AddCommonCombatStrategyButtons(pFrame, tFrame, pCombat, yOffset)
 	local y = tonumber(yOffset) or 0
 
-	addCommonCombatStrategyButton(pFrame, pCombat, tFrame, "AvoidAoe", y, "spell_shadow_antishadow.blp", "tips.every.strategy.avoidaoe", "avoid aoe")
-	addCommonCombatStrategyButton(pFrame, pCombat, tFrame, "SaveMana", y + 26, "spell_frost_manarecharge.blp", "tips.every.strategy.savemana", "save mana")
-	addCommonCombatStrategyButton(pFrame, pCombat, tFrame, "Threat", y + 52, "ability_warrior_challange.blp", "tips.every.strategy.threat", "threat")
-	addCommonCombatStrategyButton(pFrame, pCombat, tFrame, "Behind", y + 78, "ability_backstab.blp", "tips.every.strategy.behind", "behind")
+	addCommonStrategyButton(tFrame, pCombat, "DpsAssist",  y,       "spell_holy_heroism.blp",         "tips.every.strategy.dpsassist",  "dps assist",  "co")
+	addCommonStrategyButton(tFrame, pCombat, "TankAssist", y + 26,  "ability_warrior_innerrage.blp",  "tips.every.strategy.tankassist", "tank assist", "co")
+	addCommonStrategyButton(tFrame, pCombat, "AvoidAoe",   y + 52,  "spell_shadow_antishadow.blp",    "tips.every.strategy.avoidaoe",   "avoid aoe",   "co")
+	addCommonStrategyButton(tFrame, pCombat, "SaveMana",   y + 78,  "spell_frost_manarecharge.blp",   "tips.every.strategy.savemana",   "save mana",   "co")
+	addCommonStrategyButton(tFrame, pCombat, "Threat",     y + 104, "ability_warrior_challange.blp",  "tips.every.strategy.threat",     "threat",      "co")
+	addCommonStrategyButton(tFrame, pCombat, "Behind",     y + 130, "ability_backstab.blp",           "tips.every.strategy.behind",     "behind",      "co")
+end
+
+function MultiBot.AddNonCombatControl(pFrame, x, pNormal)
+	pFrame.addButton("NonCombatControl", x, 0, "INV_Scroll_01", MultiBot.L("tips.every.noncombat.master"))
+	.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("NonCombatControl"))
+	end
+
+	local tNonCombatFrame = pFrame.addFrame("NonCombatControl", x - 2, 30)
+	tNonCombatFrame:Hide()
+
+	addCommonStrategyButton(tNonCombatFrame, pNormal, "Buff",   0,  "spell_holy_power",      "tips.every.strategy.buff",   "buff,",  "nc")
+	addCommonStrategyButton(tNonCombatFrame, pNormal, "Food",   26, "inv_drink_24_sealwhey", "tips.every.strategy.food",   "food",   "nc")
+	addCommonStrategyButton(tNonCombatFrame, pNormal, "Loot",   52, "inv_misc_coin_16",      "tips.every.strategy.loot",   "loot",   "nc")
+	addCommonStrategyButton(tNonCombatFrame, pNormal, "Gather", 78, "trade_mining",          "tips.every.strategy.gather", "gather", "nc")
+end
+
+function MultiBot.AddCombatControl(pFrame, x, pCombat)
+	pFrame.addButton("CombatControl", x, 0, "INV_Sword_06", MultiBot.L("tips.every.combat.master"))
+	.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("CombatControl"))
+	end
+
+	local tCombatFrame = pFrame.addFrame("CombatControl", x - 2, 30)
+	tCombatFrame:Hide()
+
+	addCommonStrategyButton(tCombatFrame, pCombat, "DpsAssist",  0,   "spell_holy_heroism.blp",         "tips.every.strategy.dpsassist",  "dps assist",  "co")
+	addCommonStrategyButton(tCombatFrame, pCombat, "TankAssist", 26,  "ability_warrior_innerrage.blp",  "tips.every.strategy.tankassist", "tank assist", "co")
+	addCommonStrategyButton(tCombatFrame, pCombat, "AvoidAoe",   52,  "spell_shadow_antishadow.blp",    "tips.every.strategy.avoidaoe",   "avoid aoe",   "co")
+	-- addCommonStrategyButton(tCombatFrame, pCombat, "SaveMana",   78,  "spell_frost_manarecharge.blp",   "tips.every.strategy.savemana",   "save mana",   "co")
+	addCommonStrategyButton(tCombatFrame, pCombat, "Threat",     78,  "ability_warrior_challange.blp",  "tips.every.strategy.threat",     "threat",      "co")
+	addCommonStrategyButton(tCombatFrame, pCombat, "Behind",     104, "ability_backstab.blp",           "tips.every.strategy.behind",     "behind",      "co")
+
+	return tCombatFrame
 end
