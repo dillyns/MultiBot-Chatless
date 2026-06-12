@@ -59,7 +59,7 @@ MultiBot.addDeathKnight = function(pFrame, pCombat, pNormal)
 
 	-- DK STRATEGIES --
 
-	pFrame.addButton("DkControl", -90, 0, "ability_warrior_challange", MultiBot.L("tips.deathknight.strategy.master"))
+	pFrame.addButton("DkControl", -90, 0, "INV_Glyph_MajorDeathKnight", MultiBot.L("tips.deathknight.strategy.master"))
 	.doLeft = function(pButton)
 		MultiBot.ShowHideSwitch(pButton.getFrame("DkControlFrame"))
 	end
