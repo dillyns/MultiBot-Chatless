@@ -74,6 +74,49 @@ local function addBotCombatButton(parent, name, x, y, icon, tip, enableCommand, 
   return button
 end
 
+-- Adds a sub-button to an exclusive radio group dropdown.
+-- Left-click: selects this strat (enables self + master, disables siblings, wires master doRight).
+-- Master doRight: sends "mode -strat", disables master + all siblings.
+-- tFrame: the dropdown frame. masterKey: name of the master button on the parent frame.
+-- siblings: ordered list of all button names in this group (used for mutual exclusion).
+function MultiBot.AddExclusiveButton(tFrame, masterKey, name, y, icon, tip, mode, strat, siblings)
+	local onCmd  = mode .. " +" .. strat
+	local offCmd = mode .. " -" .. strat
+	tFrame.addButton(name, 0, y, icon, tip).setDisable()
+	.doLeft = function(pButton)
+		MultiBot.SelectToTarget(pButton.get(), masterKey, pButton.texture, onCmd, pButton.getName())
+		pButton.setEnable()
+		local master = pButton.getButton(masterKey)
+		master.setEnable()
+		for _, other in ipairs(siblings) do
+			if other ~= name then pButton.getButton(other).setDisable() end
+		end
+		master.doRight = function(btn)
+			MultiBot.ActionToTarget(offCmd, btn.getName())
+			btn.setDisable()
+			for _, other in ipairs(siblings) do
+				pButton.getButton(other).setDisable()
+			end
+		end
+	end
+end
+
+-- Restores an exclusive group master button to its active state on load.
+-- Sets master texture, enables it, and wires doRight to send "mode -strat" + disable all.
+function MultiBot.RestoreExclusiveGroup(pFrame, masterKey, icon, mode, strat, siblings)
+	local offCmd = mode .. " -" .. strat
+	local master = pFrame.getButton(masterKey)
+	master.setTexture(icon)
+	master.setEnable()
+	master.doRight = function(btn)
+		MultiBot.ActionToTarget(offCmd, btn.getName())
+		btn.setDisable()
+		for _, other in ipairs(siblings) do
+			pFrame.getButton(other).setDisable()
+		end
+	end
+end
+
 MultiBot.addEvery = function(pFrame, pCombat, pNormal)
 
     -- MENU MISC --------------------------------------------

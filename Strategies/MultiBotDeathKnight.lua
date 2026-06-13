@@ -5,14 +5,19 @@ local DK_PRESENCE_BLOOD  = "blood"
 local DK_PRESENCE_FROST  = "frost"
 local DK_PRESENCE_UNHOLY = "unholy"
 
-local DK_STRAT_FROST_AOE  = "frost aoe"
-local DK_STRAT_UNHOLY_AOE = "unholy aoe"
-
 local DK_PLAYBOOK_DEFAULT_ICON = "spell_deathknight_bloodpresence"
 local DK_PLAYBOOK_ICONS = {
 	[DK_PRESENCE_BLOOD]  = "spell_deathknight_bloodpresence",
 	[DK_PRESENCE_FROST]  = "spell_deathknight_frostpresence",
 	[DK_PRESENCE_UNHOLY] = "spell_deathknight_unholypresence",
+}
+
+local DK_STRAT_FROST_AOE  = "frost aoe"
+local DK_STRAT_UNHOLY_AOE = "unholy aoe"
+
+local DK_STRAT_ICONS = {
+	[DK_STRAT_FROST_AOE]  = "spell_frost_arcticwinds",
+	[DK_STRAT_UNHOLY_AOE] = "spell_shadow_plaguecloud",
 }
 
 local function setPlaybookIcon(pButton, presence)
@@ -67,14 +72,14 @@ MultiBot.addDeathKnight = function(pFrame, pCombat, pNormal)
 	local tControlFrame = pFrame.addFrame("DkControlFrame", -92, 30)
 	tControlFrame:Hide()
 
-	tControlFrame.addButton("FrostAoe", 0, 0, "spell_frost_frostbolt02", MultiBot.L("tips.deathknight.strategy.frostAoe")).setDisable()
+	tControlFrame.addButton("FrostAoe",  0,  0, DK_STRAT_ICONS[DK_STRAT_FROST_AOE],  MultiBot.L("tips.deathknight.strategy.frostAoe")).setDisable()
 	.doLeft = function(pButton)
 		if MultiBot.OnOffActionToTarget(pButton, "co +" .. DK_STRAT_FROST_AOE, "co -" .. DK_STRAT_FROST_AOE, pButton.getName()) then
 			pButton.getButton("UnholyAoe").setDisable()
 		end
 	end
 
-	tControlFrame.addButton("UnholyAoe", 0, 26, "spell_fire_felflamering", MultiBot.L("tips.deathknight.strategy.unholyAoe")).setDisable()
+	tControlFrame.addButton("UnholyAoe", 0, 26, DK_STRAT_ICONS[DK_STRAT_UNHOLY_AOE], MultiBot.L("tips.deathknight.strategy.unholyAoe")).setDisable()
 	.doLeft = function(pButton)
 		if MultiBot.OnOffActionToTarget(pButton, "co +" .. DK_STRAT_UNHOLY_AOE, "co -" .. DK_STRAT_UNHOLY_AOE, pButton.getName()) then
 			pButton.getButton("FrostAoe").setDisable()

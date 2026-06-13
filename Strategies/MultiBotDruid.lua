@@ -6,18 +6,26 @@ local DRUID_ROLE_BALANCE = "balance"
 local DRUID_ROLE_CAT     = "cat"
 local DRUID_ROLE_BEAR    = "bear"
 
+local DRUID_PLAYBOOK_DEFAULT_ICON = "inv_misc_book_06"
+local DRUID_ROLE_ICONS = {
+	[DRUID_ROLE_RESTO]   = "spell_nature_healingtouch",
+	[DRUID_ROLE_BALANCE] = "spell_nature_starfall",
+	[DRUID_ROLE_CAT]     = "ability_druid_catform",
+	[DRUID_ROLE_BEAR]    = "ability_racial_bearform",
+}
+
 local DRUID_STRAT_HEALER_DPS   = "healer dps"
 local DRUID_STRAT_BLANKETING   = "blanketing"
 local DRUID_STRAT_TRANQUILITY  = "tranquility"
 local DRUID_STRAT_FERAL_CHARGE = "feral charge"
 local DRUID_STRAT_OFFHEAL      = "offheal"
 
-local DRUID_PLAYBOOK_DEFAULT_ICON = "inv_misc_book_06"
-local DRUID_ROLE_ICONS = {
-	[DRUID_ROLE_RESTO]   = "Ability_Druid_TreeofLife",
-	[DRUID_ROLE_BALANCE] = "Ability_Druid_ImprovedMoonkinForm",
-	[DRUID_ROLE_CAT]     = "ability_druid_catform",
-	[DRUID_ROLE_BEAR]    = "ability_racial_bearform",
+local DRUID_STRAT_ICONS = {
+	[DRUID_STRAT_HEALER_DPS]   = "spell_nature_abolishmagic",
+	[DRUID_STRAT_BLANKETING]   = "spell_nature_rejuvenation",
+	[DRUID_STRAT_TRANQUILITY]  = "spell_nature_tranquility",
+	[DRUID_STRAT_FERAL_CHARGE] = "Spell_Druid_feralchargecat",
+	[DRUID_STRAT_OFFHEAL]      = "spell_nature_resistnature",
 }
 
 local function setPlaybookIcon(pButton, role)
@@ -58,10 +66,10 @@ MultiBot.addDruid = function(pFrame, pCombat, pNormal)
 	local tFrame = pFrame.addFrame("Playbook", -62, 30)
 	tFrame:Hide()
 
-	addPlaybookButton(tFrame, "Resto",  0,  0, "Ability_Druid_TreeofLife",         "tips.druid.playbook.resto",  DRUID_ROLE_RESTO)
-	addPlaybookButton(tFrame, "Caster", 0, 26, "Ability_Druid_ImprovedMoonkinForm", "tips.druid.playbook.caster", DRUID_ROLE_BALANCE)
-	addPlaybookButton(tFrame, "Cat",    0, 52, "ability_druid_catform",             "tips.druid.playbook.cat",    DRUID_ROLE_CAT)
-	addPlaybookButton(tFrame, "Bear",   0, 78, "ability_racial_bearform",           "tips.druid.playbook.bear",   DRUID_ROLE_BEAR)
+	addPlaybookButton(tFrame, "Resto",  0,  0, DRUID_ROLE_ICONS[DRUID_ROLE_RESTO],   "tips.druid.playbook.resto",  DRUID_ROLE_RESTO)
+	addPlaybookButton(tFrame, "Caster", 0, 26, DRUID_ROLE_ICONS[DRUID_ROLE_BALANCE], "tips.druid.playbook.caster", DRUID_ROLE_BALANCE)
+	addPlaybookButton(tFrame, "Cat",    0, 52, DRUID_ROLE_ICONS[DRUID_ROLE_CAT],     "tips.druid.playbook.cat",    DRUID_ROLE_CAT)
+	addPlaybookButton(tFrame, "Bear",   0, 78, DRUID_ROLE_ICONS[DRUID_ROLE_BEAR],    "tips.druid.playbook.bear",   DRUID_ROLE_BEAR)
 
 	-- DRUID STRATEGIES --
 
@@ -73,27 +81,27 @@ MultiBot.addDruid = function(pFrame, pCombat, pNormal)
 	local tControlFrame = pFrame.addFrame("DruidControlFrame", -92, 30)
 	tControlFrame:Hide()
 
-	tControlFrame.addButton("HealerDps",  0,  0,  "INV_Alchemy_Elixir_02",       MultiBot.L("tips.druid.strategy.healerdps")).setDisable()
+	tControlFrame.addButton("HealerDps",  0,  0,  DRUID_STRAT_ICONS[DRUID_STRAT_HEALER_DPS],   MultiBot.L("tips.druid.strategy.healerdps")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. DRUID_STRAT_HEALER_DPS, "co -" .. DRUID_STRAT_HEALER_DPS, pButton.getName())
 	end
 
-	tControlFrame.addButton("Blanketing", 0, 26,  "spell_nature_rejuvenation",   MultiBot.L("tips.druid.strategy.blanketing")).setDisable()
+	tControlFrame.addButton("Blanketing", 0, 26,  DRUID_STRAT_ICONS[DRUID_STRAT_BLANKETING],   MultiBot.L("tips.druid.strategy.blanketing")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. DRUID_STRAT_BLANKETING, "co -" .. DRUID_STRAT_BLANKETING, pButton.getName())
 	end
 
-	tControlFrame.addButton("Tranquility", 0, 52, "spell_nature_tranquility",    MultiBot.L("tips.druid.strategy.tranquility")).setDisable()
+	tControlFrame.addButton("Tranquility", 0, 52, DRUID_STRAT_ICONS[DRUID_STRAT_TRANQUILITY],  MultiBot.L("tips.druid.strategy.tranquility")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. DRUID_STRAT_TRANQUILITY, "co -" .. DRUID_STRAT_TRANQUILITY, pButton.getName())
 	end
 
-	tControlFrame.addButton("FeralCharge", 0, 78, "Spell_Druid_feralchargecat",  MultiBot.L("tips.druid.strategy.feralCharge")).setDisable()
+	tControlFrame.addButton("FeralCharge", 0, 78, DRUID_STRAT_ICONS[DRUID_STRAT_FERAL_CHARGE], MultiBot.L("tips.druid.strategy.feralCharge")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. DRUID_STRAT_FERAL_CHARGE, "co -" .. DRUID_STRAT_FERAL_CHARGE, pButton.getName())
 	end
 
-	tControlFrame.addButton("OffHeal",    0, 104, "spell_nature_healingtouch",   MultiBot.L("tips.druid.strategy.offheal")).setDisable()
+	tControlFrame.addButton("OffHeal",    0, 104, DRUID_STRAT_ICONS[DRUID_STRAT_OFFHEAL],      MultiBot.L("tips.druid.strategy.offheal")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. DRUID_STRAT_OFFHEAL, "co -" .. DRUID_STRAT_OFFHEAL, pButton.getName())
 	end

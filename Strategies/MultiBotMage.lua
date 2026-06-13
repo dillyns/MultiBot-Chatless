@@ -6,16 +6,22 @@ local MAGE_SPEC_FIRE      = "fire"
 local MAGE_SPEC_FROSTFIRE = "frostfire"
 local MAGE_SPEC_ARCANE    = "arcane"
 
+local MAGE_PLAYBOOK_DEFAULT_ICON = "inv_misc_book_06"
+local MAGE_SPEC_ICONS = {
+	[MAGE_SPEC_FROST]     = "spell_frost_frostbolt02",
+	[MAGE_SPEC_FIRE]      = "spell_fire_flamebolt",
+	[MAGE_SPEC_FROSTFIRE] = "ability_mage_frostfirebolt",
+	[MAGE_SPEC_ARCANE]    = "spell_holy_magicalsentry",
+}
+
 local MAGE_STRAT_FIRESTARTER = "firestarter"
 local MAGE_STRAT_BMANA       = "bmana"
 local MAGE_STRAT_BDPS        = "bdps"
 
-local MAGE_PLAYBOOK_DEFAULT_ICON = "inv_misc_book_06"
-local MAGE_SPEC_ICONS = {
-	[MAGE_SPEC_FROST]     = "spell_frost_frostbolt02",
-	[MAGE_SPEC_FIRE]      = "spell_fire_fireball02",
-	[MAGE_SPEC_FROSTFIRE] = "ability_mage_frostfirebolt",
-	[MAGE_SPEC_ARCANE]    = "ability_mage_arcanebarrage",
+local MAGE_STRAT_ICONS = {
+	[MAGE_STRAT_FIRESTARTER] = "ability_mage_firestarter",
+	[MAGE_STRAT_BMANA]       = "spell_magearmor",
+	[MAGE_STRAT_BDPS]        = "ability_mage_moltenarmor",
 }
 
 local function setPlaybookIcon(pButton, spec)
@@ -70,19 +76,19 @@ MultiBot.addMage = function(pFrame, pCombat, pNormal)
 	local tControlFrame = pFrame.addFrame("MageControlFrame", -92, 30)
 	tControlFrame:Hide()
 
-	tControlFrame.addButton("Firestarter", 0,  0, "ability_mage_firestarter",    MultiBot.L("tips.mage.strategy.firestarter")).setDisable()
+	tControlFrame.addButton("Firestarter", 0,  0, MAGE_STRAT_ICONS[MAGE_STRAT_FIRESTARTER], MultiBot.L("tips.mage.strategy.firestarter")).setDisable()
 	.doLeft = function(pButton)
 		MultiBot.OnOffActionToTarget(pButton, "co +" .. MAGE_STRAT_FIRESTARTER, "co -" .. MAGE_STRAT_FIRESTARTER, pButton.getName())
 	end
 
-	tControlFrame.addButton("BMana",       0, 26, "inv_elemental_primal_mana",   MultiBot.L("tips.mage.strategy.bmana")).setDisable()
+	tControlFrame.addButton("BMana",       0, 26, MAGE_STRAT_ICONS[MAGE_STRAT_BMANA],       MultiBot.L("tips.mage.strategy.bmana")).setDisable()
 	.doLeft = function(pButton)
 		if MultiBot.OnOffActionToTarget(pButton, "nc +" .. MAGE_STRAT_BMANA, "nc -" .. MAGE_STRAT_BMANA, pButton.getName()) then
 			pButton.getButton("BDps").setDisable()
 		end
 	end
 
-	tControlFrame.addButton("BDps",        0, 52, "inv_elemental_primal_nether", MultiBot.L("tips.mage.strategy.bdps")).setDisable()
+	tControlFrame.addButton("BDps",        0, 52, MAGE_STRAT_ICONS[MAGE_STRAT_BDPS],        MultiBot.L("tips.mage.strategy.bdps")).setDisable()
 	.doLeft = function(pButton)
 		if MultiBot.OnOffActionToTarget(pButton, "nc +" .. MAGE_STRAT_BDPS, "nc -" .. MAGE_STRAT_BDPS, pButton.getName()) then
 			pButton.getButton("BMana").setDisable()

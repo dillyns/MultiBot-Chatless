@@ -1,359 +1,195 @@
-MultiBot.addPaladin = function(pFrame, pCombat, pNormal)
-	pFrame.addButton("Heal", 0, 0, "spell_holy_aspiration", MultiBot.L("tips.paladin.heal")).setDisable()
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
+
+local PALADIN_ROLE_HEAL    = "heal"
+local PALADIN_ROLE_DPS     = "dps"
+local PALADIN_ROLE_TANK    = "tank"
+local PALADIN_ROLE_OFFHEAL = "offheal"
+
+local PALADIN_ROLE_ICONS = {
+	[PALADIN_ROLE_HEAL]    = "spell_holy_holybolt",
+	[PALADIN_ROLE_DPS]     = "spell_holy_auraoflight",
+	[PALADIN_ROLE_TANK]    = "spell_holy_devotionaura",
+	[PALADIN_ROLE_OFFHEAL] = "spell_holy_flashheal",
+}
+
+local PALADIN_BUFF_BHEALTH = "bsanc"
+local PALADIN_BUFF_BMANA   = "bwisdom"
+local PALADIN_BUFF_BSTATS  = "bkings"
+local PALADIN_BUFF_BDPS    = "bmight"
+
+local PALADIN_BUFF_ICONS = {
+	[PALADIN_BUFF_BHEALTH] = "spell_nature_lightningshield",
+	[PALADIN_BUFF_BMANA]   = "spell_holy_sealofwisdom",
+	[PALADIN_BUFF_BSTATS]  = "spell_magic_magearmor",
+	[PALADIN_BUFF_BDPS]    = "spell_holy_fistofjustice",
+}
+
+local PALADIN_STRAT_HEALER_DPS = "healer dps"
+
+local PALADIN_STRAT_ICONS = {
+	[PALADIN_STRAT_HEALER_DPS] = "spell_holy_healingaura",
+}
+
+local PALADIN_AURA_BSPEED  = "bspeed"
+local PALADIN_AURA_RFIRE   = "rfire"
+local PALADIN_AURA_RFROST  = "rfrost"
+local PALADIN_AURA_RSHADOW = "rshadow"
+local PALADIN_AURA_BAOE    = "baoe"
+local PALADIN_AURA_BARMOR  = "barmor"
+local PALADIN_AURA_BCAST   = "bcast"
+
+local PALADIN_AURA_ICONS = {
+	[PALADIN_AURA_BSPEED]  = "spell_holy_crusaderaura",
+	[PALADIN_AURA_RFIRE]   = "spell_fire_sealoffire",
+	[PALADIN_AURA_RFROST]  = "spell_frost_wizardmark",
+	[PALADIN_AURA_RSHADOW] = "spell_shadow_sealofkings",
+	[PALADIN_AURA_BAOE]    = "spell_holy_auraoflight",
+	[PALADIN_AURA_BARMOR]  = "spell_holy_devotionaura",
+	[PALADIN_AURA_BCAST]   = "spell_holy_mindsooth",
+}
+
+local PLAYBOOK_BUTTONS  = { PALADIN_ROLE_HEAL, PALADIN_ROLE_DPS, PALADIN_ROLE_TANK, PALADIN_ROLE_OFFHEAL }
+local BLESSING_BUTTONS  = { PALADIN_BUFF_BHEALTH, PALADIN_BUFF_BMANA, PALADIN_BUFF_BSTATS, PALADIN_BUFF_BDPS }
+local AURA_BUTTONS      = { PALADIN_AURA_BSPEED, PALADIN_AURA_RFIRE, PALADIN_AURA_RFROST, PALADIN_AURA_RSHADOW, PALADIN_AURA_BAOE, PALADIN_AURA_BARMOR, PALADIN_AURA_BCAST }
+
+function MultiBot.addPaladin(pFrame, pCombat, pNormal)
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
+
+	-- PLAYBOOK --
+
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.paladin.playbook.master"))
 	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +heal,?", "co -heal,?", pButton.getName())) then
-			pButton.getButton("Tank").setDisable()
-			pButton.getButton("Dps").setDisable()
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	-- SEAL --
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
 
-	local sealButton = pFrame.addButton("Seal", -30, 0, "spell_holy_healingaura", MultiBot.L("tips.paladin.seal.master"))
-	sealButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["Seal"])
-	end
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", PALADIN_ROLE_HEAL,     0,  PALADIN_ROLE_ICONS[PALADIN_ROLE_HEAL],    MultiBot.L("tips.paladin.playbook.heal"),        "co", PALADIN_ROLE_HEAL,    PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", PALADIN_ROLE_DPS,     26,  PALADIN_ROLE_ICONS[PALADIN_ROLE_DPS],     MultiBot.L("tips.paladin.playbook.dps"),     "co", PALADIN_ROLE_DPS,     PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", PALADIN_ROLE_TANK,    52,  PALADIN_ROLE_ICONS[PALADIN_ROLE_TANK],    MultiBot.L("tips.paladin.playbook.tank"),        "co", PALADIN_ROLE_TANK,    PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", PALADIN_ROLE_OFFHEAL, 78,  PALADIN_ROLE_ICONS[PALADIN_ROLE_OFFHEAL], MultiBot.L("tips.paladin.playbook.offheal"), "co", PALADIN_ROLE_OFFHEAL, PLAYBOOK_BUTTONS)
 
-	local sealFrame = pFrame.addFrame("Seal", -32, 30)
-	sealFrame:Hide()
+	-- PALADIN STRATEGIES --
 
-	sealFrame.addButton("SealHealth", 0, 0, "spell_holy_healingaura", MultiBot.L("tips.paladin.seal.bhealth"))
+	pFrame.addButton("PaladinControl", -90, 0, "INV_Glyph_MajorPaladin", MultiBot.L("tips.paladin.strategy.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Seal", pButton.texture, "nc +bhealth,?", pButton.getName())
-		pButton.getButton("Seal").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bhealth,?", "nc -bhealth,?", btn.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("PaladinControlFrame"))
 	end
 
-	sealFrame.addButton("SealMana", 0, 26, "spell_holy_sealofwisdom", MultiBot.L("tips.paladin.seal.bmana"))
+	local tControlFrame = pFrame.addFrame("PaladinControlFrame", -92, 30)
+	tControlFrame:Hide()
+
+	local healerDpsOn  = "co +" .. PALADIN_STRAT_HEALER_DPS
+	local healerDpsOff = "co -" .. PALADIN_STRAT_HEALER_DPS
+	tControlFrame.addButton("HealerDps", 0, 0, PALADIN_STRAT_ICONS[PALADIN_STRAT_HEALER_DPS], MultiBot.L("tips.paladin.strategy.healerdps")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Seal", pButton.texture, "nc +bmana,?", pButton.getName())
-		pButton.getButton("Seal").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bmana,?", "nc -bmana,?", btn.getName())
-		end
+		MultiBot.OnOffActionToTarget(pButton, healerDpsOn, healerDpsOff, pButton.getName())
 	end
 
-	sealFrame.addButton("SealStats", 0, 52, "spell_magic_magearmor", MultiBot.L("tips.paladin.seal.bstats"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Seal", pButton.texture, "nc +bstats,?", pButton.getName())
-		pButton.getButton("Seal").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bstats,?", "nc -bstats,?", btn.getName())
-		end
-	end
+	-- NON-COMBAT AURA --
 
-	sealFrame.addButton("SealDps", 0, 78, "inv_hammer_01", MultiBot.L("tips.paladin.seal.bdps"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Seal", pButton.texture, "nc +bdps,?", pButton.getName())
-		pButton.getButton("Seal").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bdps,?", "nc -bdps,?", btn.getName())
-		end
-	end
-
-	-- STRATEGIES:SEAL --
-
-	if(MultiBot.isInside(pNormal, "bhealth")) then
-		sealButton.setTexture("spell_holy_healingaura").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bhealth,?", "nc -bhealth,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bmana")) then
-		sealButton.setTexture("spell_holy_sealofwisdom").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bmana,?", "nc -bmana,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bstats")) then
-		sealButton.setTexture("spell_magic_magearmor").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bstats,?", "nc -bstats,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bdps")) then
-        sealButton.setTexture("inv_hammer_01").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bdps,?", "nc -bdps,?", pButton.getName())
-		end
-	end
-
-	-- NON-COMBAT-AURA --
-
-	local nonCombatAuraButton = pFrame.addButton("NonCombatAura", -60, 0, "spell_holy_crusaderaura", MultiBot.L("tips.paladin.naura.master"))
+	local nonCombatAuraButton = pFrame.addButton("NonCombatAura", -120, 0, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR], MultiBot.L("tips.paladin.aura.noncombat"))
 	nonCombatAuraButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["NonCombatAura"])
+		MultiBot.ShowHideSwitch(pButton.getFrame("NonCombatAura"))
 	end
 
-	local nonCombatAuraFrame = pFrame.addFrame("NonCombatAura", -62, 30)
+	local nonCombatAuraFrame = pFrame.addFrame("NonCombatAura", -122, 30)
 	nonCombatAuraFrame:Hide()
 
-	nonCombatAuraFrame.addButton("NonCombatSpeed", 0, 0, "spell_holy_crusaderaura", MultiBot.L("tips.paladin.naura.bspeed"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +bspeed,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bspeed,?", "nc -bspeed,?", btn.getName())
-		end
-	end
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BSPEED,  0,   PALADIN_AURA_ICONS[PALADIN_AURA_BSPEED],  MultiBot.L("tips.paladin.aura.bspeed"),  "nc", PALADIN_AURA_BSPEED,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RFIRE,   26,  PALADIN_AURA_ICONS[PALADIN_AURA_RFIRE],   MultiBot.L("tips.paladin.aura.rfire"),   "nc", PALADIN_AURA_RFIRE,   AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RFROST,  52,  PALADIN_AURA_ICONS[PALADIN_AURA_RFROST],  MultiBot.L("tips.paladin.aura.rfrost"),  "nc", PALADIN_AURA_RFROST,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RSHADOW, 78,  PALADIN_AURA_ICONS[PALADIN_AURA_RSHADOW], MultiBot.L("tips.paladin.aura.rshadow"), "nc", PALADIN_AURA_RSHADOW, AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BAOE,    104, PALADIN_AURA_ICONS[PALADIN_AURA_BAOE],    MultiBot.L("tips.paladin.aura.baoe"),    "nc", PALADIN_AURA_BAOE,    AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BARMOR,  130, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR],  MultiBot.L("tips.paladin.aura.barmor"),  "nc", PALADIN_AURA_BARMOR,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BCAST,   156, PALADIN_AURA_ICONS[PALADIN_AURA_BCAST],   MultiBot.L("tips.paladin.aura.bcast"),   "nc", PALADIN_AURA_BCAST,   AURA_BUTTONS)
 
-	nonCombatAuraFrame.addButton("NonCombatFire", 0, 26, "spell_fire_sealoffire", MultiBot.L("tips.paladin.naura.rfire"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +rfire,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +rfire,?", "nc -rfire,?", btn.getName())
-		end
-	end
+	-- COMBAT AURA --
 
-	nonCombatAuraFrame.addButton("NonCombatFrost", 0, 52, "spell_frost_wizardmark", MultiBot.L("tips.paladin.naura.rfrost"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +rfrost,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +rfrost,?", "nc -rfrost,?", btn.getName())
-		end
-	end
-
-	nonCombatAuraFrame.addButton("NonCombatShadow", 0, 78, "spell_shadow_sealofkings", MultiBot.L("tips.paladin.naura.rshadow"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +rshadow,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +rshadow,?", "nc -rshadow,?", btn.getName())
-		end
-	end
-
-	nonCombatAuraFrame.addButton("NonCombatDamage", 0, 104, "spell_holy_auraoflight", MultiBot.L("tips.paladin.naura.baoe"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +baoe,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +baoe,?", "nc -baoe,?", btn.getName())
-		end
-	end
-
-	nonCombatAuraFrame.addButton("NonCombatArmor", 0, 130, "spell_holy_devotionaura", MultiBot.L("tips.paladin.naura.barmor"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +barmor,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +barmor,?", "nc -barmor,?", btn.getName())
-		end
-	end
-
-	nonCombatAuraFrame.addButton("NonCombatCast", 0, 156, "spell_holy_mindsooth", MultiBot.L("tips.paladin.naura.bcast"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatAura", pButton.texture, "nc +bcast,?", pButton.getName())
-		pButton.getButton("NonCombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bcast,?", "nc -bcast,?", btn.getName())
-		end
-	end
-
-	-- STRATEGIES:NON-COMBAT-AURA --
-
-	if(MultiBot.isInside(pNormal, "bspeed")) then
-		nonCombatAuraButton.setTexture("spell_holy_crusaderaura").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bspeed,?", "nc -bspeed,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "rfire")) then
-		nonCombatAuraButton.setTexture("spell_fire_sealoffire").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +rfire,?", "nc -rfire,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "rfrost")) then
-		nonCombatAuraButton.setTexture("spell_frost_wizardmark").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +rfrost,?", "nc -rfrost,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "rshadow")) then
-		nonCombatAuraButton.setTexture("spell_shadow_sealofkings").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +rshadow,?", "nc -rshadow,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "baoe")) then
-		nonCombatAuraButton.setTexture("spell_holy_auraoflight").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +baoe,?", "nc -baoe,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "barmor")) then
-		nonCombatAuraButton.setTexture("spell_holy_devotionaura").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +barmor,?", "nc -barmor,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bcast")) then
-		nonCombatAuraButton.setTexture("spell_holy_mindsooth").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bcast,?", "nc -bcast,?", pButton.getName())
-		end
-	end
-
-	-- COMBAT-AURA --
-
-	local combatAuraButton = pFrame.addButton("CombatAura", -90, 0, "spell_holy_crusaderaura", MultiBot.L("tips.paladin.caura.master"))
+	local combatAuraButton = pFrame.addButton("CombatAura", -150, 0, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR], MultiBot.L("tips.paladin.aura.combat"))
 	combatAuraButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["CombatAura"])
+		MultiBot.ShowHideSwitch(pButton.getFrame("CombatAura"))
 	end
 
-	local combatAuraFrame = pFrame.addFrame("CombatAura", -92, 30)
+	local combatAuraFrame = pFrame.addFrame("CombatAura", -152, 30)
 	combatAuraFrame:Hide()
 
-	combatAuraFrame.addButton("CombatSpeed", 0, 0, "spell_holy_crusaderaura", MultiBot.L("tips.paladin.caura.bspeed"))
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_BSPEED,  0,   PALADIN_AURA_ICONS[PALADIN_AURA_BSPEED],  MultiBot.L("tips.paladin.aura.bspeed"),  "co", PALADIN_AURA_BSPEED,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_RFIRE,   26,  PALADIN_AURA_ICONS[PALADIN_AURA_RFIRE],   MultiBot.L("tips.paladin.aura.rfire"),   "co", PALADIN_AURA_RFIRE,   AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_RFROST,  52,  PALADIN_AURA_ICONS[PALADIN_AURA_RFROST],  MultiBot.L("tips.paladin.aura.rfrost"),  "co", PALADIN_AURA_RFROST,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_RSHADOW, 78,  PALADIN_AURA_ICONS[PALADIN_AURA_RSHADOW], MultiBot.L("tips.paladin.aura.rshadow"), "co", PALADIN_AURA_RSHADOW, AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_BAOE,    104, PALADIN_AURA_ICONS[PALADIN_AURA_BAOE],    MultiBot.L("tips.paladin.aura.baoe"),    "co", PALADIN_AURA_BAOE,    AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_BARMOR,  130, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR],  MultiBot.L("tips.paladin.aura.barmor"),  "co", PALADIN_AURA_BARMOR,  AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(combatAuraFrame, "CombatAura", PALADIN_AURA_BCAST,   156, PALADIN_AURA_ICONS[PALADIN_AURA_BCAST],   MultiBot.L("tips.paladin.aura.bcast"),   "co", PALADIN_AURA_BCAST,   AURA_BUTTONS)
+
+	-- BLESSINGS --
+
+	pFrame.addButton("BlessingControl", -180, 0, PALADIN_BUFF_ICONS[PALADIN_BUFF_BDPS], MultiBot.L("tips.paladin.buff.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +bspeed,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +bspeed,?", "co -bspeed,?", btn.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("BlessingControlFrame"))
 	end
 
-	combatAuraFrame.addButton("CombatFire", 0, 26, "spell_fire_sealoffire", MultiBot.L("tips.paladin.caura.rfire"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +rfire,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +rfire,?", "co -rfire,?", btn.getName())
-		end
+	local tBlessingFrame = pFrame.addFrame("BlessingControlFrame", -182, 30)
+	tBlessingFrame:Hide()
+
+	MultiBot.AddExclusiveButton(tBlessingFrame, "BlessingControl", PALADIN_BUFF_BHEALTH,  0,  PALADIN_BUFF_ICONS[PALADIN_BUFF_BHEALTH], MultiBot.L("tips.paladin.buff.bhealth"), "nc", PALADIN_BUFF_BHEALTH, BLESSING_BUTTONS)
+	MultiBot.AddExclusiveButton(tBlessingFrame, "BlessingControl", PALADIN_BUFF_BMANA,   26,  PALADIN_BUFF_ICONS[PALADIN_BUFF_BMANA],   MultiBot.L("tips.paladin.buff.bmana"),   "nc", PALADIN_BUFF_BMANA,   BLESSING_BUTTONS)
+	MultiBot.AddExclusiveButton(tBlessingFrame, "BlessingControl", PALADIN_BUFF_BSTATS,  52,  PALADIN_BUFF_ICONS[PALADIN_BUFF_BSTATS],  MultiBot.L("tips.paladin.buff.bstats"),  "nc", PALADIN_BUFF_BSTATS,  BLESSING_BUTTONS)
+	MultiBot.AddExclusiveButton(tBlessingFrame, "BlessingControl", PALADIN_BUFF_BDPS,    78,  PALADIN_BUFF_ICONS[PALADIN_BUFF_BDPS],    MultiBot.L("tips.paladin.buff.bdps"),    "nc", PALADIN_BUFF_BDPS,    BLESSING_BUTTONS)
+
+	-- SET STRATS --
+
+	local _role = nil
+	if     MultiBot.isInside(pCombat, PALADIN_ROLE_HEAL)    then _role = PALADIN_ROLE_HEAL    tPlaybookFrame.getButton(PALADIN_ROLE_HEAL).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_TANK)    then _role = PALADIN_ROLE_TANK    tPlaybookFrame.getButton(PALADIN_ROLE_TANK).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_DPS)     then _role = PALADIN_ROLE_DPS     tPlaybookFrame.getButton(PALADIN_ROLE_DPS).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_OFFHEAL) then _role = PALADIN_ROLE_OFFHEAL tPlaybookFrame.getButton(PALADIN_ROLE_OFFHEAL).setEnable()
+	end
+	if _role then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", PALADIN_ROLE_ICONS[_role], "co", _role, PLAYBOOK_BUTTONS)
 	end
 
-	combatAuraFrame.addButton("CombatFrost", 0, 52, "spell_frost_wizardmark", MultiBot.L("tips.paladin.caura.rfrost"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +rfrost,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +rfrost,?", "co -rfrost,?", btn.getName())
-		end
+	-- Buff state --
+	local _buff = nil
+	if     MultiBot.isInside(pNormal, PALADIN_BUFF_BHEALTH) then _buff = PALADIN_BUFF_BHEALTH tBlessingFrame.getButton(PALADIN_BUFF_BHEALTH).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BMANA)   then _buff = PALADIN_BUFF_BMANA   tBlessingFrame.getButton(PALADIN_BUFF_BMANA).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BSTATS)  then _buff = PALADIN_BUFF_BSTATS  tBlessingFrame.getButton(PALADIN_BUFF_BSTATS).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BDPS)    then _buff = PALADIN_BUFF_BDPS    tBlessingFrame.getButton(PALADIN_BUFF_BDPS).setEnable()
+	end
+	if _buff then
+		MultiBot.RestoreExclusiveGroup(pFrame, "BlessingControl", PALADIN_BUFF_ICONS[_buff], "nc", _buff, BLESSING_BUTTONS)
 	end
 
-	combatAuraFrame.addButton("CombatShadow", 0, 78, "spell_shadow_sealofkings", MultiBot.L("tips.paladin.caura.rshadow"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +rshadow,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +rshadow,?", "co -rshadow,?", btn.getName())
-		end
+	-- NonCombatAura state --
+	local _naura = nil
+	if     MultiBot.isInside(pNormal, PALADIN_AURA_BSPEED)  then _naura = PALADIN_AURA_BSPEED  nonCombatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFIRE)   then _naura = PALADIN_AURA_RFIRE   nonCombatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFROST)  then _naura = PALADIN_AURA_RFROST  nonCombatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RSHADOW) then _naura = PALADIN_AURA_RSHADOW nonCombatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BAOE)    then _naura = PALADIN_AURA_BAOE    nonCombatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BARMOR)  then _naura = PALADIN_AURA_BARMOR  nonCombatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BCAST)   then _naura = PALADIN_AURA_BCAST   nonCombatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
+	end
+	if _naura then
+		MultiBot.RestoreExclusiveGroup(pFrame, "NonCombatAura", PALADIN_AURA_ICONS[_naura], "nc", _naura, AURA_BUTTONS)
 	end
 
-	combatAuraFrame.addButton("CombatDamage", 0, 104, "spell_holy_auraoflight", MultiBot.L("tips.paladin.caura.baoe"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +baoe,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +baoe,?", "co -baoe,?", btn.getName())
-		end
+	-- CombatAura state --
+	local _caura = nil
+	if     MultiBot.isInside(pCombat, PALADIN_AURA_BSPEED)  then _caura = PALADIN_AURA_BSPEED  combatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFIRE)   then _caura = PALADIN_AURA_RFIRE   combatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFROST)  then _caura = PALADIN_AURA_RFROST  combatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RSHADOW) then _caura = PALADIN_AURA_RSHADOW combatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BAOE)    then _caura = PALADIN_AURA_BAOE    combatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BARMOR)  then _caura = PALADIN_AURA_BARMOR  combatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BCAST)   then _caura = PALADIN_AURA_BCAST   combatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
+	end
+	if _caura then
+		MultiBot.RestoreExclusiveGroup(pFrame, "CombatAura", PALADIN_AURA_ICONS[_caura], "co", _caura, AURA_BUTTONS)
 	end
 
-	combatAuraFrame.addButton("CombatArmor", 0, 130, "spell_holy_devotionaura", MultiBot.L("tips.paladin.caura.barmor"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +barmor,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +barmor,?", "co -barmor,?", btn.getName())
-		end
-	end
-
-	combatAuraFrame.addButton("CombatCast", 0, 156, "spell_holy_mindsooth", MultiBot.L("tips.paladin.caura.bcast"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatAura", pButton.texture, "co +bcast,?", pButton.getName())
-		pButton.getButton("CombatAura").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +bcast,?", "co -bcast,?", btn.getName())
-		end
-	end
-
-	-- STRATEGIES:COMBAT-AURA --
-
-	if(MultiBot.isInside(pCombat, "bspeed")) then
-		combatAuraButton.setTexture("spell_holy_crusaderaura").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +bspeed,?", "co -bspeed,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "rfire")) then
-		combatAuraButton.setTexture("spell_fire_sealoffire").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +rfire,?", "co -rfire,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "rfrost")) then
-		combatAuraButton.setTexture("spell_frost_wizardmark").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +rfrost,?", "co -rfrost,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "rshadow")) then
-		combatAuraButton.setTexture("spell_shadow_sealofkings").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +rshadow,?", "co -rshadow,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "baoe")) then
-		combatAuraButton.setTexture("spell_holy_auraoflight").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +baoe,?", "co -baoe,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "barmor")) then
-		combatAuraButton.setTexture("spell_holy_devotionaura").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +barmor,?", "co -barmor,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "bcast")) then
-		combatAuraButton.setTexture("spell_holy_mindsooth").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +bcast,?", "co -bcast,?", pButton.getName())
-		end
-	end
-
-	-- DPS --
-
-	pFrame.addButton("DpsControl", -120, 0, "ability_warrior_challange", MultiBot.L("tips.paladin.dps.master"))
-	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
-	end
-
-	local dpsFrame = pFrame.addFrame("DpsControl", -122, 30)
-	dpsFrame:Hide()
-
-	dpsFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.paladin.dps.dpsAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	dpsFrame.addButton("DpsAoe", 0, 26, "spell_holy_surgeoflight", MultiBot.L("tips.paladin.dps.dpsAoe")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
-	end
-
-	dpsFrame.addButton("Dps", 0, 52, "spell_holy_divinepurpose", MultiBot.L("tips.paladin.dps.dps")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps,?", "co -dps,?", pButton.getName())) then
-			pButton.getButton("Heal").setDisable()
-			pButton.getButton("Tank").setDisable()
-		end
-	end
-
-    -- OFF-HEAL --
-	dpsFrame.addButton("OffHeal", 0, 78, "Spell_Holy_FlashHeal", MultiBot.L("tips.paladin.dps.offheal")).setDisable()
-        .doLeft = function(pButton)
-            if (MultiBot.OnOffActionToTarget(
-                    pButton, "co +offheal,?", "co -offheal,?",
-                    pButton.getName())) then
-
-                -- Modes exclusifs
-                pButton.getButton("Dps").setDisable()
-                pButton.getButton("Heal").setDisable()
-            end
-        end
-
-    -- Added missing Healer DPS
-	dpsFrame.addButton("HealerDps", 0, 104, "INV_Alchemy_Elixir_02", MultiBot.L("tips.paladin.dps.healerdps")).setDisable()
-    .doLeft = function(pButton)
-        if(MultiBot.OnOffActionToTarget(pButton, "co +healer dps,?", "co -healer dps,?", pButton.getName())) then
-            pButton.getButton("TankAssist").setDisable()
-            pButton.getButton("DpsAoe").setDisable()
-            pButton.getButton("DpsAssist").setDisable()
-        end
-    end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, dpsFrame, pCombat, 130)
-	end
-
-	-- ASSIST --
-
-	pFrame.addButton("TankAssist", -150, 0, "ability_warrior_innerrage", MultiBot.L("tips.paladin.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	-- TANK --
-
-	pFrame.addButton("Tank", -180, 0, "ability_warrior_shieldmastery", MultiBot.L("tips.paladin.tank")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank,?", "co -tank,?", pButton.getName())) then
-			pButton.getButton("Heal").setDisable()
-			pButton.getButton("Dps").setDisable()
-		end
-	end
-
-	-- STRATEGIES --
-
-	if(MultiBot.isInside(pCombat, "dps,")) then pFrame.getButton("Dps").setEnable() end
-	if(MultiBot.isInside(pCombat, "heal")) then pFrame.getButton("Heal").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank,")) then pFrame.getButton("Tank").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "offheal")) then pFrame.getButton("OffHeal").setEnable() end
-	if(MultiBot.isInside(pCombat, "healer dps")) then pFrame.getButton("HealerDps").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
+	if MultiBot.isInside(pCombat, PALADIN_STRAT_HEALER_DPS) then tControlFrame.getButton("HealerDps").setEnable() end
 end
