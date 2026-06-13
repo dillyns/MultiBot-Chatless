@@ -1,53 +1,44 @@
-MultiBot.addWarrior = function(pFrame, pCombat, pNormal)
-	pFrame.addButton("DpsControl", 0, 0, "ability_warrior_challange", MultiBot.L("tips.warrior.dps.master"))
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
+
+local WARRIOR_ROLE_TANK = "tank"
+local WARRIOR_ROLE_ARMS = "arms"
+local WARRIOR_ROLE_FURY = "fury"
+
+local WARRIOR_ROLE_ICONS = {
+	[WARRIOR_ROLE_TANK] = "ability_warrior_shieldmastery",
+	[WARRIOR_ROLE_ARMS] = "ability_warrior_savageblow",
+	[WARRIOR_ROLE_FURY] = "ability_warrior_innerrage",
+}
+
+local PLAYBOOK_BUTTONS = { WARRIOR_ROLE_TANK, WARRIOR_ROLE_ARMS, WARRIOR_ROLE_FURY }
+
+function MultiBot.addWarrior(pFrame, pCombat, pNormal)
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
+
+	-- PLAYBOOK --
+
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.warrior.playbook.master"))
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
+		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	local tFrame = pFrame.addFrame("DpsControl", -2, 30)
-	tFrame:Hide()
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
 
-	tFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.warrior.dps.dpsAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARRIOR_ROLE_TANK,  0,  WARRIOR_ROLE_ICONS[WARRIOR_ROLE_TANK], MultiBot.L("tips.warrior.playbook.tank"), "co", WARRIOR_ROLE_TANK, PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARRIOR_ROLE_ARMS, 26,  WARRIOR_ROLE_ICONS[WARRIOR_ROLE_ARMS], MultiBot.L("tips.warrior.playbook.arms"), "co", WARRIOR_ROLE_ARMS, PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARRIOR_ROLE_FURY, 52,  WARRIOR_ROLE_ICONS[WARRIOR_ROLE_FURY], MultiBot.L("tips.warrior.playbook.fury"), "co", WARRIOR_ROLE_FURY, PLAYBOOK_BUTTONS)
+
+	-- SET STRATS --
+
+	local role = nil
+	if     MultiBot.isInside(pCombat, WARRIOR_ROLE_TANK) then role = WARRIOR_ROLE_TANK tPlaybookFrame.getButton(WARRIOR_ROLE_TANK).setEnable()
+	elseif MultiBot.isInside(pCombat, WARRIOR_ROLE_ARMS) then role = WARRIOR_ROLE_ARMS tPlaybookFrame.getButton(WARRIOR_ROLE_ARMS).setEnable()
+	elseif MultiBot.isInside(pCombat, WARRIOR_ROLE_FURY) then role = WARRIOR_ROLE_FURY tPlaybookFrame.getButton(WARRIOR_ROLE_FURY).setEnable()
 	end
-
-	tFrame.addButton("DpsAoe", 0, 26, "spell_holy_surgeoflight", MultiBot.L("tips.warrior.dps.dpsAoe")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
+	if role then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", WARRIOR_ROLE_ICONS[role], "co", role, PLAYBOOK_BUTTONS)
 	end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, tFrame, pCombat, 52)
-	end
-
-	-- ASSIST --
-
-	pFrame.addButton("TankAssist", -30, 0, "ability_warrior_innerrage", MultiBot.L("tips.warrior.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	-- TANK --
-
-	pFrame.addButton("Tank", -60, 0, "ability_warrior_shieldmastery", MultiBot.L("tips.warrior.tank")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +tank,?", "co -tank,?", pButton.getName())
-	end
-
-	-- STRATEGIES --
-
-	if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank")) then pFrame.getButton("Tank").setEnable() end
 end

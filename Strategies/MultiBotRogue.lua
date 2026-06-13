@@ -1,78 +1,75 @@
-MultiBot.addRogue = function(pFrame, pCombat, pNormal)
-	pFrame.addButton("DpsControl", 0, 0, "ability_warrior_challange", MultiBot.L("tips.rogue.dps.master"))
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
+
+local ROGUE_ROLE_COMBAT       = "dps"
+local ROGUE_ROLE_ASSASSINATION = "melee"
+
+local ROGUE_ROLE_ICONS = {
+	[ROGUE_ROLE_COMBAT]       = "ability_backstab",
+	[ROGUE_ROLE_ASSASSINATION] = "ability_rogue_eviscerate",
+}
+
+local ROGUE_STRAT_STEALTH   = "stealth"
+local ROGUE_STRAT_STEALTHED = "stealthed"
+
+local ROGUE_STRAT_ICONS = {
+	[ROGUE_STRAT_STEALTH]   = "ability_stealth",
+	[ROGUE_STRAT_STEALTHED] = "ability_rogue_ambush",
+}
+
+local PLAYBOOK_BUTTONS = { ROGUE_ROLE_COMBAT, ROGUE_ROLE_ASSASSINATION }
+
+function MultiBot.addRogue(pFrame, pCombat, pNormal)
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
+
+	-- PLAYBOOK --
+
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.rogue.playbook.master"))
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
+		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	local tFrame = pFrame.addFrame("DpsControl", -2, 30)
-	tFrame:Hide()
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
 
-	tFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.rogue.dps.dpsAssist")).setDisable()
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", ROGUE_ROLE_COMBAT,       0,  ROGUE_ROLE_ICONS[ROGUE_ROLE_COMBAT],       MultiBot.L("tips.rogue.playbook.combat"),       "co", ROGUE_ROLE_COMBAT,       PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", ROGUE_ROLE_ASSASSINATION, 26, ROGUE_ROLE_ICONS[ROGUE_ROLE_ASSASSINATION], MultiBot.L("tips.rogue.playbook.assassination"), "co", ROGUE_ROLE_ASSASSINATION, PLAYBOOK_BUTTONS)
+
+	-- ROGUE STRATEGIES --
+
+	pFrame.addButton("RogueControl", -90, 0, "INV_Glyph_MajorRogue", MultiBot.L("tips.rogue.strategy.master"))
 	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("RogueControlFrame"))
 	end
 
-	tFrame.addButton("DpsAoe", 0, 26, "spell_holy_surgeoflight", MultiBot.L("tips.rogue.dps.dpsAoe")).setDisable()
+	local tControlFrame = pFrame.addFrame("RogueControlFrame", -92, 30)
+	tControlFrame:Hide()
+
+	local stealthOn  = "co +" .. ROGUE_STRAT_STEALTH
+	local stealthOff = "co -" .. ROGUE_STRAT_STEALTH
+	tControlFrame.addButton("Stealth", 0, 0, ROGUE_STRAT_ICONS[ROGUE_STRAT_STEALTH], MultiBot.L("tips.rogue.strategy.stealth")).setDisable()
 	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
+		MultiBot.OnOffActionToTarget(pButton, stealthOn, stealthOff, pButton.getName())
 	end
 
-	tFrame.addButton("Dps", 0, 52, "spell_holy_divinepurpose", MultiBot.L("tips.rogue.dps.dps")).setDisable()
+	local stealthedOn  = "co +" .. ROGUE_STRAT_STEALTHED
+	local stealthedOff = "co -" .. ROGUE_STRAT_STEALTHED
+	tControlFrame.addButton("Stealthed", 0, 26, ROGUE_STRAT_ICONS[ROGUE_STRAT_STEALTHED], MultiBot.L("tips.rogue.strategy.stealthed")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +dps,?", "co -dps,?", pButton.getName())
+		MultiBot.OnOffActionToTarget(pButton, stealthedOn, stealthedOff, pButton.getName())
 	end
 
-	-- STEALTH (maintenir le camouflage HORS COMBAT)
-	tFrame.addButton("Stealth", 0, 78, "ability_stealth",  MultiBot.L("tips.rogue.dps.stealth")).setDisable()
-	.doLeft = function(pButton)
-		-- "stealth" est une stratégie non-combat : on la pousse côté pNormal
-		MultiBot.OnOffActionToTarget(pButton, "co +stealth,?", "co -stealth,?", pButton.getName())
+	-- SET STRATS --
+
+	local role = nil
+	if     MultiBot.isInside(pCombat, ROGUE_ROLE_COMBAT)       then role = ROGUE_ROLE_COMBAT       tPlaybookFrame.getButton(ROGUE_ROLE_COMBAT).setEnable()
+	elseif MultiBot.isInside(pCombat, ROGUE_ROLE_ASSASSINATION) then role = ROGUE_ROLE_ASSASSINATION tPlaybookFrame.getButton(ROGUE_ROLE_ASSASSINATION).setEnable()
+	end
+	if role then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", ROGUE_ROLE_ICONS[role], "co", role, PLAYBOOK_BUTTONS)
 	end
 
-	-- STEALTHED (comportement EN CAMOUFLAGE en combat)
-	tFrame.addButton("Stealthed", 0, 104, "ability_sap", MultiBot.L("tips.rogue.dps.stealthed")).setDisable()
-	.doLeft = function(pButton)
-		-- Pour entrer en mode "stealthed", on coupe dps et on force stealthed ; l'inverse pour repasser en dps.
-		if(MultiBot.OnOffActionToTarget(pButton, "co +stealthed,?", "co -stealthed,?", pButton.getName())) then
-			pButton.getButton("Dps")      .setDisable()
-			pButton.getButton("DpsAoe")   .setDisable()
-			pButton.getButton("DpsAssist")   .setDisable()
-		end
-	end
-
-	-- BOOST (active les CD offensifs : Adrenaline Rush, Blade Flurry, etc.)
-	tFrame.addButton("Boost", 0, 130, "ability_mage_potentspirit", MultiBot.L("tips.rogue.dps.boost")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +boost,?", "co -boost,?", pButton.getName())
-	end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, tFrame, pCombat, 156)
-	end
-
-	-- ASSIST --
-
-	pFrame.addButton("TankAssist", -30, 0, "ability_warrior_innerrage", MultiBot.L("tips.rogue.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	-- STRATEGIES --
-
-	if(MultiBot.isInside(pCombat, "dps")) then pFrame.getButton("Dps").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
-	if(MultiBot.isInside(pNormal, "stealth")) then pFrame.getButton("Stealth").setEnable() end
-	if(MultiBot.isInside(pCombat, "stealthed")) then pFrame.getButton("Stealthed").setEnable() end
-	if(MultiBot.isInside(pCombat, "boost")) then pFrame.getButton("Boost").setEnable() end
+	if MultiBot.isInside(pNormal, ROGUE_STRAT_STEALTH)   then tControlFrame.getButton("Stealth").setEnable() end
+	if MultiBot.isInside(pCombat, ROGUE_STRAT_STEALTHED) then tControlFrame.getButton("Stealthed").setEnable() end
 end

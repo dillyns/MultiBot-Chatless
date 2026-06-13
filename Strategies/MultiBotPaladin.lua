@@ -142,53 +142,53 @@ function MultiBot.addPaladin(pFrame, pCombat, pNormal)
 
 	-- SET STRATS --
 
-	local _role = nil
-	if     MultiBot.isInside(pCombat, PALADIN_ROLE_HEAL)    then _role = PALADIN_ROLE_HEAL    tPlaybookFrame.getButton(PALADIN_ROLE_HEAL).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_TANK)    then _role = PALADIN_ROLE_TANK    tPlaybookFrame.getButton(PALADIN_ROLE_TANK).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_DPS)     then _role = PALADIN_ROLE_DPS     tPlaybookFrame.getButton(PALADIN_ROLE_DPS).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_OFFHEAL) then _role = PALADIN_ROLE_OFFHEAL tPlaybookFrame.getButton(PALADIN_ROLE_OFFHEAL).setEnable()
+	local role = nil
+	if     MultiBot.isInside(pCombat, PALADIN_ROLE_HEAL)    then role = PALADIN_ROLE_HEAL    tPlaybookFrame.getButton(PALADIN_ROLE_HEAL).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_TANK)    then role = PALADIN_ROLE_TANK    tPlaybookFrame.getButton(PALADIN_ROLE_TANK).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_DPS)     then role = PALADIN_ROLE_DPS     tPlaybookFrame.getButton(PALADIN_ROLE_DPS).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_ROLE_OFFHEAL) then role = PALADIN_ROLE_OFFHEAL tPlaybookFrame.getButton(PALADIN_ROLE_OFFHEAL).setEnable()
 	end
-	if _role then
-		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", PALADIN_ROLE_ICONS[_role], "co", _role, PLAYBOOK_BUTTONS)
+	if role then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", PALADIN_ROLE_ICONS[role], "co", role, PLAYBOOK_BUTTONS)
 	end
 
 	-- Buff state --
-	local _buff = nil
-	if     MultiBot.isInside(pNormal, PALADIN_BUFF_BHEALTH) then _buff = PALADIN_BUFF_BHEALTH tBlessingFrame.getButton(PALADIN_BUFF_BHEALTH).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BMANA)   then _buff = PALADIN_BUFF_BMANA   tBlessingFrame.getButton(PALADIN_BUFF_BMANA).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BSTATS)  then _buff = PALADIN_BUFF_BSTATS  tBlessingFrame.getButton(PALADIN_BUFF_BSTATS).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BDPS)    then _buff = PALADIN_BUFF_BDPS    tBlessingFrame.getButton(PALADIN_BUFF_BDPS).setEnable()
+	local buff = nil
+	if     MultiBot.isInside(pNormal, PALADIN_BUFF_BHEALTH) then buff = PALADIN_BUFF_BHEALTH tBlessingFrame.getButton(PALADIN_BUFF_BHEALTH).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BMANA)   then buff = PALADIN_BUFF_BMANA   tBlessingFrame.getButton(PALADIN_BUFF_BMANA).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BSTATS)  then buff = PALADIN_BUFF_BSTATS  tBlessingFrame.getButton(PALADIN_BUFF_BSTATS).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_BUFF_BDPS)    then buff = PALADIN_BUFF_BDPS    tBlessingFrame.getButton(PALADIN_BUFF_BDPS).setEnable()
 	end
-	if _buff then
-		MultiBot.RestoreExclusiveGroup(pFrame, "BlessingControl", PALADIN_BUFF_ICONS[_buff], "nc", _buff, BLESSING_BUTTONS)
+	if buff then
+		MultiBot.RestoreExclusiveGroup(pFrame, "BlessingControl", PALADIN_BUFF_ICONS[buff], "nc", buff, BLESSING_BUTTONS)
 	end
 
 	-- NonCombatAura state --
-	local _naura = nil
-	if     MultiBot.isInside(pNormal, PALADIN_AURA_BSPEED)  then _naura = PALADIN_AURA_BSPEED  nonCombatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFIRE)   then _naura = PALADIN_AURA_RFIRE   nonCombatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFROST)  then _naura = PALADIN_AURA_RFROST  nonCombatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RSHADOW) then _naura = PALADIN_AURA_RSHADOW nonCombatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BAOE)    then _naura = PALADIN_AURA_BAOE    nonCombatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BARMOR)  then _naura = PALADIN_AURA_BARMOR  nonCombatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BCAST)   then _naura = PALADIN_AURA_BCAST   nonCombatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
+	local naura = nil
+	if     MultiBot.isInside(pNormal, PALADIN_AURA_BSPEED)  then naura = PALADIN_AURA_BSPEED  nonCombatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFIRE)   then naura = PALADIN_AURA_RFIRE   nonCombatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFROST)  then naura = PALADIN_AURA_RFROST  nonCombatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RSHADOW) then naura = PALADIN_AURA_RSHADOW nonCombatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BAOE)    then naura = PALADIN_AURA_BAOE    nonCombatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BARMOR)  then naura = PALADIN_AURA_BARMOR  nonCombatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BCAST)   then naura = PALADIN_AURA_BCAST   nonCombatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
 	end
-	if _naura then
-		MultiBot.RestoreExclusiveGroup(pFrame, "NonCombatAura", PALADIN_AURA_ICONS[_naura], "nc", _naura, AURA_BUTTONS)
+	if naura then
+		MultiBot.RestoreExclusiveGroup(pFrame, "NonCombatAura", PALADIN_AURA_ICONS[naura], "nc", naura, AURA_BUTTONS)
 	end
 
 	-- CombatAura state --
-	local _caura = nil
-	if     MultiBot.isInside(pCombat, PALADIN_AURA_BSPEED)  then _caura = PALADIN_AURA_BSPEED  combatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFIRE)   then _caura = PALADIN_AURA_RFIRE   combatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFROST)  then _caura = PALADIN_AURA_RFROST  combatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RSHADOW) then _caura = PALADIN_AURA_RSHADOW combatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BAOE)    then _caura = PALADIN_AURA_BAOE    combatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BARMOR)  then _caura = PALADIN_AURA_BARMOR  combatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
-	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BCAST)   then _caura = PALADIN_AURA_BCAST   combatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
+	local caura = nil
+	if     MultiBot.isInside(pCombat, PALADIN_AURA_BSPEED)  then caura = PALADIN_AURA_BSPEED  combatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFIRE)   then caura = PALADIN_AURA_RFIRE   combatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RFROST)  then caura = PALADIN_AURA_RFROST  combatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_RSHADOW) then caura = PALADIN_AURA_RSHADOW combatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BAOE)    then caura = PALADIN_AURA_BAOE    combatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BARMOR)  then caura = PALADIN_AURA_BARMOR  combatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
+	elseif MultiBot.isInside(pCombat, PALADIN_AURA_BCAST)   then caura = PALADIN_AURA_BCAST   combatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
 	end
-	if _caura then
-		MultiBot.RestoreExclusiveGroup(pFrame, "CombatAura", PALADIN_AURA_ICONS[_caura], "co", _caura, AURA_BUTTONS)
+	if caura then
+		MultiBot.RestoreExclusiveGroup(pFrame, "CombatAura", PALADIN_AURA_ICONS[caura], "co", caura, AURA_BUTTONS)
 	end
 
 	if MultiBot.isInside(pCombat, PALADIN_STRAT_HEALER_DPS) then tControlFrame.getButton("HealerDps").setEnable() end

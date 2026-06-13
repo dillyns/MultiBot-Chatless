@@ -6,7 +6,6 @@ local MAGE_SPEC_FIRE      = "fire"
 local MAGE_SPEC_FROSTFIRE = "frostfire"
 local MAGE_SPEC_ARCANE    = "arcane"
 
-local MAGE_PLAYBOOK_DEFAULT_ICON = "inv_misc_book_06"
 local MAGE_SPEC_ICONS = {
 	[MAGE_SPEC_FROST]     = "spell_frost_frostbolt02",
 	[MAGE_SPEC_FIRE]      = "spell_fire_flamebolt",
@@ -15,45 +14,29 @@ local MAGE_SPEC_ICONS = {
 }
 
 local MAGE_STRAT_FIRESTARTER = "firestarter"
-local MAGE_STRAT_BMANA       = "bmana"
-local MAGE_STRAT_BDPS        = "bdps"
 
 local MAGE_STRAT_ICONS = {
 	[MAGE_STRAT_FIRESTARTER] = "ability_mage_firestarter",
-	[MAGE_STRAT_BMANA]       = "spell_magearmor",
-	[MAGE_STRAT_BDPS]        = "ability_mage_moltenarmor",
 }
 
-local function setPlaybookIcon(pButton, spec)
-	local btn = pButton.getButton("Playbook")
-	if not btn then return end
-	local icon = (spec and MAGE_SPEC_ICONS[spec]) or MAGE_PLAYBOOK_DEFAULT_ICON
-	if btn.setTexture then btn.setTexture(icon) end
-end
+local MAGE_BUFF_BMANA = "bmana"
+local MAGE_BUFF_BDPS  = "bdps"
 
-local PLAYBOOK_BUTTONS = { "Arcane", "Frost", "Fire", "FrostFire" }
+local MAGE_BUFF_ICONS = {
+	[MAGE_BUFF_BMANA] = "spell_magearmor",
+	[MAGE_BUFF_BDPS]  = "ability_mage_moltenarmor",
+}
 
-local function addPlaybookButton(tFrame, name, x, y, icon, tipKey, spec)
-	tFrame.addButton(name, x, y, icon, MultiBot.L(tipKey)).setDisable()
-	.doLeft = function(pButton)
-		if MultiBot.OnOffActionToTarget(pButton, "co +" .. spec, "co -" .. spec, pButton.getName()) then
-			setPlaybookIcon(pButton, spec)
-			for _, other in ipairs(PLAYBOOK_BUTTONS) do
-				if other ~= name then pButton.getButton(other).setDisable() end
-			end
-		else
-			setPlaybookIcon(pButton, nil)
-		end
-	end
-end
+local PLAYBOOK_BUTTONS = { MAGE_SPEC_ARCANE, MAGE_SPEC_FROST, MAGE_SPEC_FIRE, MAGE_SPEC_FROSTFIRE }
+local BUFF_BUTTONS     = { MAGE_BUFF_BMANA, MAGE_BUFF_BDPS }
 
-MultiBot.addMage = function(pFrame, pCombat, pNormal)
+function MultiBot.addMage(pFrame, pCombat, pNormal)
 	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
 	MultiBot.AddCombatControl(pFrame, -30, pCombat)
 
 	-- PLAYBOOK --
 
-	pFrame.addButton("Playbook", -60, 0, MAGE_PLAYBOOK_DEFAULT_ICON, MultiBot.L("tips.mage.playbook.master"))
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.mage.playbook.master"))
 	.doLeft = function(pButton)
 		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
@@ -61,10 +44,10 @@ MultiBot.addMage = function(pFrame, pCombat, pNormal)
 	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
 	tPlaybookFrame:Hide()
 
-	addPlaybookButton(tPlaybookFrame, "Arcane",    0,  0, MAGE_SPEC_ICONS[MAGE_SPEC_ARCANE],    "tips.mage.playbook.arcane",    MAGE_SPEC_ARCANE)
-	addPlaybookButton(tPlaybookFrame, "Frost",     0, 26, MAGE_SPEC_ICONS[MAGE_SPEC_FROST],     "tips.mage.playbook.frost",     MAGE_SPEC_FROST)
-	addPlaybookButton(tPlaybookFrame, "Fire",      0, 52, MAGE_SPEC_ICONS[MAGE_SPEC_FIRE],      "tips.mage.playbook.fire",      MAGE_SPEC_FIRE)
-	addPlaybookButton(tPlaybookFrame, "FrostFire", 0, 78, MAGE_SPEC_ICONS[MAGE_SPEC_FROSTFIRE], "tips.mage.playbook.frostfire", MAGE_SPEC_FROSTFIRE)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", MAGE_SPEC_ARCANE,     0,  MAGE_SPEC_ICONS[MAGE_SPEC_ARCANE],    MultiBot.L("tips.mage.playbook.arcane"),    "co", MAGE_SPEC_ARCANE,    PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", MAGE_SPEC_FROST,     26,  MAGE_SPEC_ICONS[MAGE_SPEC_FROST],     MultiBot.L("tips.mage.playbook.frost"),     "co", MAGE_SPEC_FROST,     PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", MAGE_SPEC_FIRE,      52,  MAGE_SPEC_ICONS[MAGE_SPEC_FIRE],      MultiBot.L("tips.mage.playbook.fire"),      "co", MAGE_SPEC_FIRE,      PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", MAGE_SPEC_FROSTFIRE, 78,  MAGE_SPEC_ICONS[MAGE_SPEC_FROSTFIRE], MultiBot.L("tips.mage.playbook.frostfire"), "co", MAGE_SPEC_FROSTFIRE, PLAYBOOK_BUTTONS)
 
 	-- MAGE STRATEGIES --
 
@@ -76,36 +59,46 @@ MultiBot.addMage = function(pFrame, pCombat, pNormal)
 	local tControlFrame = pFrame.addFrame("MageControlFrame", -92, 30)
 	tControlFrame:Hide()
 
-	tControlFrame.addButton("Firestarter", 0,  0, MAGE_STRAT_ICONS[MAGE_STRAT_FIRESTARTER], MultiBot.L("tips.mage.strategy.firestarter")).setDisable()
+	local firestarteron  = "co +" .. MAGE_STRAT_FIRESTARTER
+	local firestarteroff = "co -" .. MAGE_STRAT_FIRESTARTER
+	tControlFrame.addButton(MAGE_STRAT_FIRESTARTER, 0, 0, MAGE_STRAT_ICONS[MAGE_STRAT_FIRESTARTER], MultiBot.L("tips.mage.strategy.firestarter")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +" .. MAGE_STRAT_FIRESTARTER, "co -" .. MAGE_STRAT_FIRESTARTER, pButton.getName())
+		MultiBot.OnOffActionToTarget(pButton, firestarteron, firestarteroff, pButton.getName())
 	end
 
-	tControlFrame.addButton("BMana",       0, 26, MAGE_STRAT_ICONS[MAGE_STRAT_BMANA],       MultiBot.L("tips.mage.strategy.bmana")).setDisable()
+	-- BUFFS --
+
+	pFrame.addButton("MageBuffControl", -120, 0, MAGE_BUFF_ICONS[MAGE_BUFF_BDPS], MultiBot.L("tips.mage.buff.master"))
 	.doLeft = function(pButton)
-		if MultiBot.OnOffActionToTarget(pButton, "nc +" .. MAGE_STRAT_BMANA, "nc -" .. MAGE_STRAT_BMANA, pButton.getName()) then
-			pButton.getButton("BDps").setDisable()
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("MageBuffControlFrame"))
 	end
 
-	tControlFrame.addButton("BDps",        0, 52, MAGE_STRAT_ICONS[MAGE_STRAT_BDPS],        MultiBot.L("tips.mage.strategy.bdps")).setDisable()
-	.doLeft = function(pButton)
-		if MultiBot.OnOffActionToTarget(pButton, "nc +" .. MAGE_STRAT_BDPS, "nc -" .. MAGE_STRAT_BDPS, pButton.getName()) then
-			pButton.getButton("BMana").setDisable()
-		end
-	end
+	local tBuffFrame = pFrame.addFrame("MageBuffControlFrame", -122, 30)
+	tBuffFrame:Hide()
+
+	MultiBot.AddExclusiveButton(tBuffFrame, "MageBuffControl", MAGE_BUFF_BMANA,  0,  MAGE_BUFF_ICONS[MAGE_BUFF_BMANA], MultiBot.L("tips.mage.buff.bmana"), "nc", MAGE_BUFF_BMANA, BUFF_BUTTONS)
+	MultiBot.AddExclusiveButton(tBuffFrame, "MageBuffControl", MAGE_BUFF_BDPS,  26,  MAGE_BUFF_ICONS[MAGE_BUFF_BDPS],  MultiBot.L("tips.mage.buff.bdps"),  "nc", MAGE_BUFF_BDPS,  BUFF_BUTTONS)
 
 	-- SET STRATS --
 
-	local _spec = nil
-	if     MultiBot.isInside(pCombat, MAGE_SPEC_ARCANE)    then _spec = MAGE_SPEC_ARCANE    pFrame.getButton("Arcane").setEnable()
-	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FROSTFIRE) then _spec = MAGE_SPEC_FROSTFIRE pFrame.getButton("FrostFire").setEnable()
-	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FROST)     then _spec = MAGE_SPEC_FROST     pFrame.getButton("Frost").setEnable()
-	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FIRE)      then _spec = MAGE_SPEC_FIRE      pFrame.getButton("Fire").setEnable()
+	local spec = nil
+	if     MultiBot.isInside(pCombat, MAGE_SPEC_ARCANE)    then spec = MAGE_SPEC_ARCANE    tPlaybookFrame.getButton(MAGE_SPEC_ARCANE).setEnable()
+	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FROSTFIRE) then spec = MAGE_SPEC_FROSTFIRE tPlaybookFrame.getButton(MAGE_SPEC_FROSTFIRE).setEnable()
+	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FROST)     then spec = MAGE_SPEC_FROST     tPlaybookFrame.getButton(MAGE_SPEC_FROST).setEnable()
+	elseif MultiBot.isInside(pCombat, MAGE_SPEC_FIRE)      then spec = MAGE_SPEC_FIRE      tPlaybookFrame.getButton(MAGE_SPEC_FIRE).setEnable()
 	end
-	setPlaybookIcon(pFrame, _spec)
+	if spec then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", MAGE_SPEC_ICONS[spec], "co", spec, PLAYBOOK_BUTTONS)
+	end
 
-	if MultiBot.isInside(pCombat, MAGE_STRAT_FIRESTARTER) then pFrame.getButton("Firestarter").setEnable() end
-	if MultiBot.isInside(pNormal, MAGE_STRAT_BMANA)       then pFrame.getButton("BMana").setEnable()       end
-	if MultiBot.isInside(pNormal, MAGE_STRAT_BDPS)        then pFrame.getButton("BDps").setEnable()        end
+	-- Buff state --
+	local buff = nil
+	if     MultiBot.isInside(pNormal, MAGE_BUFF_BMANA) then buff = MAGE_BUFF_BMANA tBuffFrame.getButton(MAGE_BUFF_BMANA).setEnable()
+	elseif MultiBot.isInside(pNormal, MAGE_BUFF_BDPS)  then buff = MAGE_BUFF_BDPS  tBuffFrame.getButton(MAGE_BUFF_BDPS).setEnable()
+	end
+	if buff then
+		MultiBot.RestoreExclusiveGroup(pFrame, "MageBuffControl", MAGE_BUFF_ICONS[buff], "nc", buff, BUFF_BUTTONS)
+	end
+
+	if MultiBot.isInside(pCombat, MAGE_STRAT_FIRESTARTER) then tControlFrame.getButton(MAGE_STRAT_FIRESTARTER).setEnable() end
 end

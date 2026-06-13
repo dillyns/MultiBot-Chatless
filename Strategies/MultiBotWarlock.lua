@@ -1,547 +1,251 @@
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
+
+local WARLOCK_SPEC_AFFLI   = "affli"
+local WARLOCK_SPEC_DEMO    = "demo"
+local WARLOCK_SPEC_DESTRO  = "destro"
+
+local WARLOCK_SPEC_ICONS = {
+	[WARLOCK_SPEC_AFFLI]  = "spell_shadow_deathcoil",
+	[WARLOCK_SPEC_DEMO]   = "spell_shadow_metamorphosis",
+	[WARLOCK_SPEC_DESTRO] = "spell_shadow_rainoffire",
+}
+
+local WARLOCK_STRAT_TANK       = "tank"
+local WARLOCK_STRAT_META_MELEE = "meta melee"
+local WARLOCK_STRAT_PET        = "pet"
+
+local WARLOCK_STRAT_ICONS = {
+	[WARLOCK_STRAT_TANK]       = "spell_fire_soulburn",
+	[WARLOCK_STRAT_META_MELEE] = "spell_shadow_demonform",
+	[WARLOCK_STRAT_PET]        = "spell_shadow_enslavedemon",
+}
+
+local WARLOCK_BUFF_FIRESTONE  = "firestone"
+local WARLOCK_BUFF_SPELLSTONE = "spellstone"
+
+local WARLOCK_BUFF_ICONS = {
+	[WARLOCK_BUFF_FIRESTONE]  = "inv_misc_gem_bloodstone_02",
+	[WARLOCK_BUFF_SPELLSTONE] = "inv_misc_gem_sapphire_01",
+}
+
+local WARLOCK_PET_IMP        = "imp"
+local WARLOCK_PET_VOIDWALKER = "voidwalker"
+local WARLOCK_PET_SUCCUBUS   = "succubus"
+local WARLOCK_PET_FELHUNTER  = "felhunter"
+local WARLOCK_PET_FELGUARD   = "felguard"
+
+local WARLOCK_PET_ICONS = {
+	[WARLOCK_PET_IMP]        = "spell_shadow_summonimp",
+	[WARLOCK_PET_VOIDWALKER] = "spell_shadow_summonvoidwalker",
+	[WARLOCK_PET_SUCCUBUS]   = "spell_shadow_summonsuccubus",
+	[WARLOCK_PET_FELHUNTER]  = "spell_shadow_summonfelhunter",
+	[WARLOCK_PET_FELGUARD]   = "spell_shadow_summonfelguard",
+}
+
+local WARLOCK_SS_SELF   = "ss self"
+local WARLOCK_SS_MASTER = "ss master"
+local WARLOCK_SS_TANK   = "ss tank"
+local WARLOCK_SS_HEALER = "ss healer"
+
+local WARLOCK_SS_ICONS = {
+	[WARLOCK_SS_SELF]   = "spell_shadow_soulgem",
+	[WARLOCK_SS_MASTER] = "inv_crown_01",
+	[WARLOCK_SS_TANK]   = "ability_defend",
+	[WARLOCK_SS_HEALER] = "INV_Elemental_Primal_life",
+}
+
+local WARLOCK_CURSE_AGONY      = "curse of agony"
+local WARLOCK_CURSE_ELEMENTS   = "curse of elements"
+local WARLOCK_CURSE_DOOM       = "curse of doom"
+local WARLOCK_CURSE_EXHAUSTION = "curse of exhaustion"
+local WARLOCK_CURSE_TONGUES    = "curse of tongues"
+local WARLOCK_CURSE_WEAKNESS   = "curse of weakness"
+
+local WARLOCK_CURSE_ICONS = {
+	[WARLOCK_CURSE_AGONY]      = "Spell_Shadow_CurseOfSargeras",
+	[WARLOCK_CURSE_ELEMENTS]   = "Spell_Shadow_ChillTouch",
+	[WARLOCK_CURSE_DOOM]       = "Spell_Shadow_AuraOfDarkness",
+	[WARLOCK_CURSE_EXHAUSTION] = "Spell_Shadow_GrimWard",
+	[WARLOCK_CURSE_TONGUES]    = "Spell_Shadow_CurseOfTounges",
+	[WARLOCK_CURSE_WEAKNESS]   = "Spell_Shadow_CurseOfMannoroth",
+}
+
+local PLAYBOOK_BUTTONS = { WARLOCK_SPEC_AFFLI, WARLOCK_SPEC_DEMO, WARLOCK_SPEC_DESTRO }
+local BUFF_BUTTONS     = { WARLOCK_BUFF_FIRESTONE, WARLOCK_BUFF_SPELLSTONE }
+local DEMON_BUTTONS    = { WARLOCK_PET_IMP, WARLOCK_PET_VOIDWALKER, WARLOCK_PET_SUCCUBUS, WARLOCK_PET_FELHUNTER, WARLOCK_PET_FELGUARD }
+local SS_BUTTONS       = { WARLOCK_SS_SELF, WARLOCK_SS_MASTER, WARLOCK_SS_TANK, WARLOCK_SS_HEALER }
+local CURSE_BUTTONS    = { WARLOCK_CURSE_AGONY, WARLOCK_CURSE_ELEMENTS, WARLOCK_CURSE_DOOM, WARLOCK_CURSE_EXHAUSTION, WARLOCK_CURSE_TONGUES, WARLOCK_CURSE_WEAKNESS }
 
 MultiBot.addWarlock = function(pFrame, pCombat, pNormal)
-	-- NON COMBAT STRATEGIES --
-	--[[local tButton = pFrame.addButton("Buff", 0, 0, "spell_shadow_lifedrain02", MultiBot.tips.warlock.buff.master)
-	tButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["Buff"])
-	end
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
 
-	local tFrame = pFrame.addFrame("Buff", -2, 30)
-	tFrame:Hide()
+	-- PLAYBOOK --
 
-	tFrame.addButton("BuffHealth", 0, 0, "spell_shadow_lifedrain02", MultiBot.tips.warlock.buff.bhealth)
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.warlock.playbook.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Buff", pButton.texture, "nc +bhealth,?", pButton.getName())
-		pButton.getButton("Buff").doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bhealth,?", "nc -bhealth,?", pButton.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	tFrame.addButton("BuffMana", 0, 26, "spell_shadow_siphonmana", MultiBot.tips.warlock.buff.bmana)
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
+
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARLOCK_SPEC_AFFLI,  0,  WARLOCK_SPEC_ICONS[WARLOCK_SPEC_AFFLI],  MultiBot.L("tips.warlock.playbook.affli"),  "co", WARLOCK_SPEC_AFFLI,  PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARLOCK_SPEC_DEMO,   26, WARLOCK_SPEC_ICONS[WARLOCK_SPEC_DEMO],   MultiBot.L("tips.warlock.playbook.demo"),   "co", WARLOCK_SPEC_DEMO,   PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", WARLOCK_SPEC_DESTRO, 52, WARLOCK_SPEC_ICONS[WARLOCK_SPEC_DESTRO], MultiBot.L("tips.warlock.playbook.destro"), "co", WARLOCK_SPEC_DESTRO, PLAYBOOK_BUTTONS)
+
+	-- WARLOCK STRATEGIES --
+
+	pFrame.addButton("WarlockControl", -90, 0, "INV_Glyph_MajorWarlock", MultiBot.L("tips.warlock.strategy.master"))
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Buff", pButton.texture, "nc +bmana,?", pButton.getName())
-		pButton.getButton("Buff").doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bmana,?", "nc -bmana,?", pButton.getName())
-		end
+		MultiBot.ShowHideSwitch(pButton.getFrame("WarlockControlFrame"))
 	end
 
-	tFrame.addButton("BuffDps", 0, 52, "spell_shadow_haunting", MultiBot.tips.warlock.buff.bdps)
+	local tControlFrame = pFrame.addFrame("WarlockControlFrame", -92, 30)
+	tControlFrame:Hide()
+
+	local tankOn  = "co +" .. WARLOCK_STRAT_TANK
+	local tankOff = "co -" .. WARLOCK_STRAT_TANK
+	tControlFrame.addButton("Tank", 0, 0, WARLOCK_STRAT_ICONS[WARLOCK_STRAT_TANK], MultiBot.L("tips.warlock.strategy.tank")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "Buff", pButton.texture, "nc +bdps,?", pButton.getName())
-		pButton.getButton("Buff").doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bdps,?", "nc -bdps,?", pButton.getName())
-		end
+		MultiBot.OnOffActionToTarget(pButton, tankOn, tankOff, pButton.getName())
 	end
 
-	-- STRATEGIES:BUFF --
-
-	if(MultiBot.isInside(pNormal, "bhealth")) then
-		tButton.setTexture("spell_shadow_lifedrain02").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bhealth,?", "nc -bhealth,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bmana")) then
-		tButton.setTexture("spell_shadow_siphonmana").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bmana,?", "nc -bmana,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bdps")) then
-		tButton.setTexture("spell_shadow_haunting").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bdps,?", "nc -bdps,?", pButton.getName())
-		end
-	end]]--
-
-    -- BUFF — non supporté pour Warlock bouton placeholder désactivé
-    local btnBuff = pFrame.addButton(
-        "Buff", 0, 0, "spell_shadow_lifedrain02",
-         (MultiBot.L("tips.warlock.buff.master") ~= "tips.warlock.buff.master" and MultiBot.L("tips.warlock.buff.master") or "Buffs")
-          .. "|n|cffff0000Not available for Warlock.|r"
-    )
-    btnBuff.setDisable()
-    btnBuff.doLeft = function() end
-
-    -- Helper commun pour (dé)saturer les icônes (réutilisé par pierres / pets / malédictions)
-    local _MB_setDesat = _MB_setDesat
-    if not _MB_setDesat then
-        local function __getIcon(btn)
-            if not btn then return nil end
-            if btn.icon and btn.icon.GetObjectType and btn.icon:GetObjectType() == "Texture" then
-                return btn.icon
-            end
-            if btn.GetNormalTexture then
-                local nt = btn:GetNormalTexture()
-                if nt and nt.GetObjectType and nt:GetObjectType() == "Texture" then
-                    return nt
-                end
-            end
-            if btn.Icon and btn.Icon.GetObjectType and btn.Icon:GetObjectType() == "Texture" then
-                return btn.Icon
-            end
-            if btn.texture and btn.texture.GetObjectType and btn.texture:GetObjectType() == "Texture" then
-                return btn.texture
-            end
-            return nil
-        end
-
-        local function __apply(tex, isDesat)
-            if not tex then return end
-            local ok = false
-            if tex.SetDesaturated then
-                ok = pcall(tex.SetDesaturated, tex, isDesat and true or false)
-            end
-            if not ok then
-                if isDesat then
-                    tex:SetVertexColor(0.35, 0.35, 0.35, 1)
-                else
-                    tex:SetVertexColor(1, 1, 1, 1)
-                end
-            else
-                if not isDesat then
-                    tex:SetVertexColor(1, 1, 1, 1)
-                end
-            end
-        end
-
-        function _MB_setDesat(btn, isDesat)
-            local tex = __getIcon(btn)
-            __apply(tex, isDesat)
-            if btn and btn.GetNormalTexture then
-                local nt = btn:GetNormalTexture()
-                if nt and nt ~= tex then
-                    __apply(nt, isDesat)
-                end
-            end
-        end
-    end
-
-	-- STONES (Spellstone / Firestone) --
-	local btnStones = pFrame.addButton("StonesSelect", -150, 0,
-		"inv_misc_orb_05",
-		MultiBot.L("tips.warlock.stones.master"))
-	btnStones._defaultIcon = "inv_misc_orb_05"
-
-	local fStones = pFrame.addFrame("Stones", -152, 30)
-	fStones:Hide()
-	fStones.activeStone = nil
-
-	btnStones.doLeft = function() MultiBot.ShowHideSwitch(fStones) end
-
-	local stoneButtons = {}
-	local stoneList = {
-		{"Spellstone", "spellstone", "inv_misc_gem_amethyst_02"},
-		{"Firestone",  "firestone",  "inv_ammo_firetar"},
-	}
-
-	local function UpdateStoneIcons(active)
-		for label, b in pairs(stoneButtons) do
-			_MB_setDesat(b, label ~= active)
-		end
-		if active and stoneButtons[active] then
-			local icon = nil
-			for _,v in ipairs(stoneList) do if v[1]==active then icon=v[3]; break end end
-			if icon and btnStones.icon and btnStones.icon.SetTexture then
-				btnStones.icon:SetTexture(MultiBot.SafeTexturePath(icon))
-			elseif icon and btnStones.setIcon then
-				btnStones.setIcon(icon)
-			end
-			_MB_setDesat(btnStones, false)
-		else
-			if btnStones.icon and btnStones.icon.SetTexture then
-				btnStones.icon:SetTexture(MultiBot.SafeTexturePath(btnStones._defaultIcon))
-			elseif btnStones.setIcon then
-				btnStones.setIcon(btnStones._defaultIcon)
-			end
-			_MB_setDesat(btnStones, true)
-		end
-	end
-
-	local function ToggleStone(pButton, label, cmd)
-		local target = pButton.getName()
-		if fStones.activeStone == label then
-			SendChatMessage("nc -" .. cmd .. ",?", "WHISPER", nil, target)
-			fStones.activeStone = nil
-		else
-			if fStones.activeStone then
-				local old = fStones.activeStone
-				local oldCmd = (old=="Spellstone") and "spellstone" or "firestone"
-				SendChatMessage("nc -" .. oldCmd, "WHISPER", nil, target)
-			end
-			SendChatMessage("nc +" .. cmd .. ",?", "WHISPER", nil, target)
-			fStones.activeStone = label
-		end
-		UpdateStoneIcons(fStones.activeStone)
-		fStones:Hide()
-	end
-
-	for i,v in ipairs(stoneList) do
-		local label, cmd, icon = unpack(v)
-		local b = fStones.addButton("Stone"..label, 0, (i-1)*26, icon,
-			MultiBot.L("tips.warlock.stones." .. label:lower()))
-		stoneButtons[label] = b
-		_MB_setDesat(b, true)
-		b.doLeft  = function(pButton) ToggleStone(pButton, label, cmd) end
-	end
-
-	for _,v in ipairs(stoneList) do
-		if MultiBot.isInside(pNormal, v[2]) then fStones.activeStone = v[1]; break end
-	end
-	UpdateStoneIcons(fStones.activeStone)
-	fStones:SetScript("OnShow", function(self) UpdateStoneIcons(self.activeStone) end)
-	-- FIN STONES --
-
-	-- SOULSTONES (stratégies) --
-	local btnSoulstones = pFrame.addButton("SoulstonesSelect", -180, 0,
-		"inv_misc_orb_04",
-		MultiBot.L("tips.warlock.soulstones.masterbutton"))
-	btnSoulstones._defaultIcon = "inv_misc_orb_04"
-
-	local fSoul = pFrame.addFrame("Soulstones", -182, 30)
-	fSoul:Hide()
-	fSoul.activeSS = nil
-
-	local ssButtons = {}
-	local ssList = {
-		{"Self",   "ss self",   "Spell_shadow_Shadowform"},
-		{"Master", "ss master", "Achievement_WorldEvent_LittleHelper"},
-		{"Tank",   "ss tank",   "ability_warrior_defensivestance"},
-		{"Healer", "ss healer", "INV_Elemental_Primal_life"},
-	}
-
-	local function UpdateSSIcons(active)
-		for label, b in pairs(ssButtons) do
-			_MB_setDesat(b, label ~= active)
-		end
-		if active and ssButtons[active] then
-			local icon=nil; for _,v in ipairs(ssList) do if v[1]==active then icon=v[3]; break end end
-			if icon and btnSoulstones.icon and btnSoulstones.icon.SetTexture then
-				btnSoulstones.icon:SetTexture(MultiBot.SafeTexturePath(icon))
-			elseif icon and btnSoulstones.setIcon then
-				btnSoulstones.setIcon(icon)
-			end
-			_MB_setDesat(btnSoulstones, false)
-		else
-			if btnSoulstones.icon and btnSoulstones.icon.SetTexture then
-				btnSoulstones.icon:SetTexture(MultiBot.SafeTexturePath(btnSoulstones._defaultIcon))
-			elseif btnSoulstones.setIcon then
-				btnSoulstones.setIcon(btnSoulstones._defaultIcon)
-			end
-			_MB_setDesat(btnSoulstones, true)
-		end
-	end
-
-	btnSoulstones.doLeft = function() MultiBot.ShowHideSwitch(fSoul) end
-
-	local function ToggleSS(pButton, label, cmd)
-		local target = pButton.getName()
-		if fSoul.activeSS == label then
-			SendChatMessage("nc -" .. cmd .. ",?", "WHISPER", nil, target)
-			fSoul.activeSS = nil
-		else
-			if fSoul.activeSS then
-				local old = fSoul.activeSS
-				for _,v in ipairs(ssList) do
-					if v[1]==old then
-						SendChatMessage("nc -" .. v[2], "WHISPER", nil, target)
-						break
-					end
-				end
-			end
-			SendChatMessage("nc +" .. cmd .. ",?", "WHISPER", nil, target)
-			fSoul.activeSS = label
-		end
-		UpdateSSIcons(fSoul.activeSS)
-		fSoul:Hide()
-	end
-
-	for i,v in ipairs(ssList) do
-		local label, cmd, icon = unpack(v)
-		local b = fSoul.addButton("SS"..label, 0, (i-1)*26, icon,
-			MultiBot.L("tips.warlock.soulstones." .. label:lower()) or label)
-		ssButtons[label] = b
-		_MB_setDesat(b, true)
-		b.doLeft = function(pButton) ToggleSS(pButton, label, cmd) end
-	end
-
-	for _,v in ipairs(ssList) do
-		if MultiBot.isInside(pNormal, v[2]) then fSoul.activeSS = v[1]; break end
-	end
-	UpdateSSIcons(fSoul.activeSS)
-	fSoul:SetScript("OnShow", function(self) UpdateSSIcons(self.activeSS) end)
-	-- FIN SOULSTONES --
-
-    -- PETS --
-    local btnPets = pFrame.addButton(
-      "PetsSelect", -210, 0,
-      "ability_druid_forceofnature",
-      MultiBot.L("tips.warlock.pets.master")
-    )
-    btnPets._defaultIcon = "ability_druid_forceofnature"
-
-    local fPets = pFrame.addFrame("Pets", -212, 30)
-    fPets:Hide()
-    fPets.activePet = nil
-    btnPets.doLeft = function() MultiBot.ShowHideSwitch(fPets) end
-
-    local petList = {
-      {"Imp",        "imp",        "spell_shadow_summonimp"},
-      {"Voidwalker", "voidwalker", "spell_shadow_summonvoidwalker"},
-      {"Succubus",   "succubus",   "spell_shadow_summonsuccubus"},
-      {"Felhunter",  "felhunter",  "spell_shadow_summonfelhunter"},
-      {"Felguard",   "felguard",   "spell_shadow_summonfelguard"},
-    }
-
-    local petButtons = {}
-
-    local function UpdatePetIcons(active)
-      for label, b in pairs(petButtons) do
-        _MB_setDesat(b, label ~= active)
-      end
-      if active and petButtons[active] then
-        local icon=nil
-        for _,v in ipairs(petList) do if v[1]==active then icon=v[3]; break end end
-        if icon and btnPets.icon and btnPets.icon.SetTexture then
-          btnPets.icon:SetTexture(MultiBot.SafeTexturePath(icon))
-        elseif icon and btnPets.setIcon then
-          btnPets.setIcon(icon)
-        end
-        _MB_setDesat(btnPets, false)
-      else
-        if btnPets.icon and btnPets.icon.SetTexture then
-          btnPets.icon:SetTexture(MultiBot.SafeTexturePath(btnPets._defaultIcon))
-        elseif btnPets.setIcon then
-          btnPets.setIcon(btnPets._defaultIcon)
-        end
-        _MB_setDesat(btnPets, true)
-      end
-    end
-
-    local function TogglePet(pButton, label, cmd)
-      local target = pButton.getName()
-      if fPets.activePet == label then
-        SendChatMessage("nc -" .. cmd .. ",?", "WHISPER", nil, target)
-        fPets.activePet = nil
-      else
-        if fPets.activePet then
-          local old = fPets.activePet
-          for _,v in ipairs(petList) do
-            if v[1]==old then
-              SendChatMessage("nc -" .. v[2], "WHISPER", nil, target)
-              break
-            end
-          end
-        end
-        SendChatMessage("nc +" .. cmd .. ",?", "WHISPER", nil, target)
-        fPets.activePet = label
-      end
-      UpdatePetIcons(fPets.activePet)
-      fPets:Hide()
-    end
-
-    for i, v in ipairs(petList) do
-      local label, cmd, icon = unpack(v)
-      local b = fPets.addButton("Pet"..label, 0, (i-1)*26, icon,
-        MultiBot.L("tips.warlock.pets." .. label:lower())
-      )
-      petButtons[label] = b
-      _MB_setDesat(b, true)
-
-      b.doLeft  = function(pButton) TogglePet(pButton, label, cmd) end
-      b.doRight = b.doLeft
-    end
-
-    for _, v in ipairs(petList) do
-      if MultiBot.isInside(pNormal, v[2]) then fPets.activePet = v[1]; break end
-    end
-    UpdatePetIcons(fPets.activePet)
-
-    fPets:SetScript("OnShow", function(self)
-      UpdatePetIcons(self.activePet)
-    end)
-
-    -- FIN PETS --
-
-
-	-- COMBAT STRATEGIES --
-	-- DPS --
-
-	pFrame.addButton("DpsControl", -30, 0, "ability_warrior_challange", MultiBot.L("tips.warlock.dps.master"))
+	local metaMeleeOn  = "co +" .. WARLOCK_STRAT_META_MELEE
+	local metaMeleeOff = "co -" .. WARLOCK_STRAT_META_MELEE
+	tControlFrame.addButton("MetaMelee", 0, 26, WARLOCK_STRAT_ICONS[WARLOCK_STRAT_META_MELEE], MultiBot.L("tips.warlock.strategy.metamelee")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
+		MultiBot.OnOffActionToTarget(pButton, metaMeleeOn, metaMeleeOff, pButton.getName())
 	end
 
-	local tFrame = pFrame.addFrame("DpsControl", -32, 30)
-	tFrame:Hide()
-
-	tFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.warlock.dps.dpsAssist")).setDisable()
+	local petOn  = "co +" .. WARLOCK_STRAT_PET
+	local petOff = "co -" .. WARLOCK_STRAT_PET
+	tControlFrame.addButton("Pet", 0, 52, WARLOCK_STRAT_ICONS[WARLOCK_STRAT_PET], MultiBot.L("tips.warlock.strategy.pet")).setDisable()
 	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
+		MultiBot.OnOffActionToTarget(pButton, petOn, petOff, pButton.getName())
 	end
 
-	tFrame.addButton("DpsDebuff", 0, 26, "spell_holy_restoration", MultiBot.L("tips.warlock.dps.dpsDebuff")).setDisable()
+	-- DEMON (pet selection) --
+
+	local demonButton = pFrame.addButton("DemonControl", -120, 0, WARLOCK_PET_ICONS[WARLOCK_PET_IMP], MultiBot.L("tips.warlock.pets.master"))
+	demonButton.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("DemonControl"))
+	end
+
+	local demonFrame = pFrame.addFrame("DemonControl", -122, 30)
+	demonFrame:Hide()
+
+	MultiBot.AddExclusiveButton(demonFrame, "DemonControl", WARLOCK_PET_IMP,        0,   WARLOCK_PET_ICONS[WARLOCK_PET_IMP],        MultiBot.L("tips.warlock.pets.imp"),        "nc", WARLOCK_PET_IMP,        DEMON_BUTTONS)
+	MultiBot.AddExclusiveButton(demonFrame, "DemonControl", WARLOCK_PET_VOIDWALKER, 26,  WARLOCK_PET_ICONS[WARLOCK_PET_VOIDWALKER], MultiBot.L("tips.warlock.pets.voidwalker"), "nc", WARLOCK_PET_VOIDWALKER, DEMON_BUTTONS)
+	MultiBot.AddExclusiveButton(demonFrame, "DemonControl", WARLOCK_PET_SUCCUBUS,   52,  WARLOCK_PET_ICONS[WARLOCK_PET_SUCCUBUS],   MultiBot.L("tips.warlock.pets.succubus"),   "nc", WARLOCK_PET_SUCCUBUS,   DEMON_BUTTONS)
+	MultiBot.AddExclusiveButton(demonFrame, "DemonControl", WARLOCK_PET_FELHUNTER,  78,  WARLOCK_PET_ICONS[WARLOCK_PET_FELHUNTER],  MultiBot.L("tips.warlock.pets.felhunter"),  "nc", WARLOCK_PET_FELHUNTER,  DEMON_BUTTONS)
+	MultiBot.AddExclusiveButton(demonFrame, "DemonControl", WARLOCK_PET_FELGUARD,   104, WARLOCK_PET_ICONS[WARLOCK_PET_FELGUARD],   MultiBot.L("tips.warlock.pets.felguard"),   "nc", WARLOCK_PET_FELGUARD,   DEMON_BUTTONS)
+
+	-- SOULSTONE --
+
+	local ssButton = pFrame.addButton("SSControl", -150, 0, WARLOCK_SS_ICONS[WARLOCK_SS_SELF], MultiBot.L("tips.warlock.soulstones.masterbutton"))
+	ssButton.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("SSControl"))
+	end
+
+	local ssFrame = pFrame.addFrame("SSControl", -152, 30)
+	ssFrame:Hide()
+
+	MultiBot.AddExclusiveButton(ssFrame, "SSControl", WARLOCK_SS_SELF,   0,  WARLOCK_SS_ICONS[WARLOCK_SS_SELF],   MultiBot.L("tips.warlock.soulstones.self"),   "nc", WARLOCK_SS_SELF,   SS_BUTTONS)
+	MultiBot.AddExclusiveButton(ssFrame, "SSControl", WARLOCK_SS_MASTER, 26, WARLOCK_SS_ICONS[WARLOCK_SS_MASTER], MultiBot.L("tips.warlock.soulstones.master"), "nc", WARLOCK_SS_MASTER, SS_BUTTONS)
+	MultiBot.AddExclusiveButton(ssFrame, "SSControl", WARLOCK_SS_TANK,   52, WARLOCK_SS_ICONS[WARLOCK_SS_TANK],   MultiBot.L("tips.warlock.soulstones.tank"),   "nc", WARLOCK_SS_TANK,   SS_BUTTONS)
+	MultiBot.AddExclusiveButton(ssFrame, "SSControl", WARLOCK_SS_HEALER, 78, WARLOCK_SS_ICONS[WARLOCK_SS_HEALER], MultiBot.L("tips.warlock.soulstones.healer"), "nc", WARLOCK_SS_HEALER, SS_BUTTONS)
+
+	-- CURSE --
+
+	local curseButton = pFrame.addButton("CurseControl", -180, 0, WARLOCK_CURSE_ICONS[WARLOCK_CURSE_AGONY], MultiBot.L("tips.warlock.curses.master"))
+	curseButton.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("CurseControl"))
+	end
+
+	local curseFrame = pFrame.addFrame("CurseControl", -182, 30)
+	curseFrame:Hide()
+
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_AGONY,      0,   WARLOCK_CURSE_ICONS[WARLOCK_CURSE_AGONY],      MultiBot.L("tips.warlock.curses.agony"),      "co", WARLOCK_CURSE_AGONY,      CURSE_BUTTONS)
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_ELEMENTS,   26,  WARLOCK_CURSE_ICONS[WARLOCK_CURSE_ELEMENTS],   MultiBot.L("tips.warlock.curses.elements"),   "co", WARLOCK_CURSE_ELEMENTS,   CURSE_BUTTONS)
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_DOOM,       52,  WARLOCK_CURSE_ICONS[WARLOCK_CURSE_DOOM],       MultiBot.L("tips.warlock.curses.doom"),       "co", WARLOCK_CURSE_DOOM,       CURSE_BUTTONS)
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_EXHAUSTION, 78,  WARLOCK_CURSE_ICONS[WARLOCK_CURSE_EXHAUSTION], MultiBot.L("tips.warlock.curses.exhaustion"), "co", WARLOCK_CURSE_EXHAUSTION, CURSE_BUTTONS)
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_TONGUES,    104, WARLOCK_CURSE_ICONS[WARLOCK_CURSE_TONGUES],    MultiBot.L("tips.warlock.curses.tongues"),    "co", WARLOCK_CURSE_TONGUES,    CURSE_BUTTONS)
+	MultiBot.AddExclusiveButton(curseFrame, "CurseControl", WARLOCK_CURSE_WEAKNESS,   130, WARLOCK_CURSE_ICONS[WARLOCK_CURSE_WEAKNESS],   MultiBot.L("tips.warlock.curses.weakness"),   "co", WARLOCK_CURSE_WEAKNESS,   CURSE_BUTTONS)
+
+	-- BUFFS (weapon stones) --
+
+	pFrame.addButton("BuffControl", -210, 0, WARLOCK_BUFF_ICONS[WARLOCK_BUFF_SPELLSTONE], MultiBot.L("tips.warlock.stones.master"))
 	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +dps debuff,?", "co -dps debuff,?", pButton.getName())
+		MultiBot.ShowHideSwitch(pButton.getFrame("BuffControlFrame"))
 	end
 
-	tFrame.addButton("DpsAoe", 0, 52, "spell_holy_surgeoflight", MultiBot.L("tips.warlock.dps.dpsAoe")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
+	local tBuffFrame = pFrame.addFrame("BuffControlFrame", -212, 30)
+	tBuffFrame:Hide()
+
+	MultiBot.AddExclusiveButton(tBuffFrame, "BuffControl", WARLOCK_BUFF_FIRESTONE,  0,  WARLOCK_BUFF_ICONS[WARLOCK_BUFF_FIRESTONE],  MultiBot.L("tips.warlock.stones.firestone"),  "nc", WARLOCK_BUFF_FIRESTONE,  BUFF_BUTTONS)
+	MultiBot.AddExclusiveButton(tBuffFrame, "BuffControl", WARLOCK_BUFF_SPELLSTONE, 26, WARLOCK_BUFF_ICONS[WARLOCK_BUFF_SPELLSTONE], MultiBot.L("tips.warlock.stones.spellstone"), "nc", WARLOCK_BUFF_SPELLSTONE, BUFF_BUTTONS)
+
+	-- SET STRATS --
+
+	-- Playbook state --
+	local spec = nil
+	if     MultiBot.isInside(pCombat, WARLOCK_SPEC_AFFLI)  then spec = WARLOCK_SPEC_AFFLI  tPlaybookFrame.getButton(WARLOCK_SPEC_AFFLI).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_SPEC_DEMO)   then spec = WARLOCK_SPEC_DEMO   tPlaybookFrame.getButton(WARLOCK_SPEC_DEMO).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_SPEC_DESTRO) then spec = WARLOCK_SPEC_DESTRO tPlaybookFrame.getButton(WARLOCK_SPEC_DESTRO).setEnable()
+	end
+	if spec then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", WARLOCK_SPEC_ICONS[spec], "co", spec, PLAYBOOK_BUTTONS)
 	end
 
-	tFrame.addButton("Dps", 0, 78, "spell_holy_divinepurpose", MultiBot.L("tips.warlock.dps.dps")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps,?", "co -dps,?", pButton.getName())) then
-			pButton.getButton("Tank").setDisable()
-		end
+	-- Strategy state --
+	if MultiBot.isInside(pCombat, WARLOCK_STRAT_TANK)       then tControlFrame.getButton("Tank").setEnable()      end
+	if MultiBot.isInside(pCombat, WARLOCK_STRAT_META_MELEE) then tControlFrame.getButton("MetaMelee").setEnable() end
+	if MultiBot.isInside(pCombat, WARLOCK_STRAT_PET)        then tControlFrame.getButton("Pet").setEnable()       end
+
+	-- Buff state --
+	local buff = nil
+	if     MultiBot.isInside(pNormal, WARLOCK_BUFF_FIRESTONE)  then buff = WARLOCK_BUFF_FIRESTONE  tBuffFrame.getButton(WARLOCK_BUFF_FIRESTONE).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_BUFF_SPELLSTONE) then buff = WARLOCK_BUFF_SPELLSTONE tBuffFrame.getButton(WARLOCK_BUFF_SPELLSTONE).setEnable()
+	end
+	if buff then
+		MultiBot.RestoreExclusiveGroup(pFrame, "BuffControl", WARLOCK_BUFF_ICONS[buff], "nc", buff, BUFF_BUTTONS)
 	end
 
-    -- META MELEE (Démonologie) --
-    local btnMeta = tFrame.addButton(
-      "MetaMelee", 0, 105, "Spell_Shadow_DemonForm",
-      (MultiBot.L("tips.warlock.dps.metamelee") ~= "tips.warlock.dps.metamelee" and MultiBot.L("tips.warlock.dps.metamelee") or "Meta Melee")
-    )
-    btnMeta.setDisable()
-
-    btnMeta.doLeft = function(pButton)
-      MultiBot.OnOffActionToTarget(pButton, "co +meta melee,?", "co -meta melee,?", pButton.getName())
-    end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, tFrame, pCombat, 131)
+	-- Demon state --
+	local demon = nil
+	if     MultiBot.isInside(pNormal, WARLOCK_PET_IMP)        then demon = WARLOCK_PET_IMP        demonFrame.getButton(WARLOCK_PET_IMP).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_PET_VOIDWALKER) then demon = WARLOCK_PET_VOIDWALKER demonFrame.getButton(WARLOCK_PET_VOIDWALKER).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_PET_SUCCUBUS)   then demon = WARLOCK_PET_SUCCUBUS   demonFrame.getButton(WARLOCK_PET_SUCCUBUS).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_PET_FELHUNTER)  then demon = WARLOCK_PET_FELHUNTER  demonFrame.getButton(WARLOCK_PET_FELHUNTER).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_PET_FELGUARD)   then demon = WARLOCK_PET_FELGUARD   demonFrame.getButton(WARLOCK_PET_FELGUARD).setEnable()
+	end
+	if demon then
+		MultiBot.RestoreExclusiveGroup(pFrame, "DemonControl", WARLOCK_PET_ICONS[demon], "nc", demon, DEMON_BUTTONS)
 	end
 
-		-- ASSIST --
-
-	pFrame.addButton("TankAssist", -60, 0, "ability_warrior_innerrage", MultiBot.L("tips.warlock.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
+	-- Soulstone state --
+	local ss = nil
+	if     MultiBot.isInside(pNormal, WARLOCK_SS_SELF)   then ss = WARLOCK_SS_SELF   ssFrame.getButton(WARLOCK_SS_SELF).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_SS_MASTER) then ss = WARLOCK_SS_MASTER ssFrame.getButton(WARLOCK_SS_MASTER).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_SS_TANK)   then ss = WARLOCK_SS_TANK   ssFrame.getButton(WARLOCK_SS_TANK).setEnable()
+	elseif MultiBot.isInside(pNormal, WARLOCK_SS_HEALER) then ss = WARLOCK_SS_HEALER ssFrame.getButton(WARLOCK_SS_HEALER).setEnable()
+	end
+	if ss then
+		MultiBot.RestoreExclusiveGroup(pFrame, "SSControl", WARLOCK_SS_ICONS[ss], "nc", ss, SS_BUTTONS)
 	end
 
-	-- TANK --
-
-	pFrame.addButton("Tank", -90, 0, "ability_warrior_shieldmastery", MultiBot.L("tips.warlock.tank")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank,?", "co -tank,?", pButton.getName())) then
-			pButton.getButton("Dps").setDisable()
-		end
+	-- Curse state --
+	local curse = nil
+	if     MultiBot.isInside(pCombat, WARLOCK_CURSE_AGONY)      then curse = WARLOCK_CURSE_AGONY      curseFrame.getButton(WARLOCK_CURSE_AGONY).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_CURSE_ELEMENTS)   then curse = WARLOCK_CURSE_ELEMENTS   curseFrame.getButton(WARLOCK_CURSE_ELEMENTS).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_CURSE_DOOM)       then curse = WARLOCK_CURSE_DOOM       curseFrame.getButton(WARLOCK_CURSE_DOOM).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_CURSE_EXHAUSTION) then curse = WARLOCK_CURSE_EXHAUSTION curseFrame.getButton(WARLOCK_CURSE_EXHAUSTION).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_CURSE_TONGUES)    then curse = WARLOCK_CURSE_TONGUES    curseFrame.getButton(WARLOCK_CURSE_TONGUES).setEnable()
+	elseif MultiBot.isInside(pCombat, WARLOCK_CURSE_WEAKNESS)   then curse = WARLOCK_CURSE_WEAKNESS   curseFrame.getButton(WARLOCK_CURSE_WEAKNESS).setEnable()
 	end
-
-   -- CURSES --
-   local btnCurses = pFrame.addButton(
-     "CursesSelect", -120, 0,
-     "ability_warlock_avoidance",
-     MultiBot.L("tips.warlock.curses.master")
-   )
-   btnCurses._defaultIcon = "ability_warlock_avoidance"
-
-   local fCurses = pFrame.addFrame("Curses", -122, 30)
-   fCurses:Hide()
-   fCurses.activeCurse = nil
-
-   btnCurses.doLeft = function() MultiBot.ShowHideSwitch(fCurses) end
-
-   local curseButtons = {}
-
-   local curseList = {
-     {"Agony",      "curse of agony",      "Spell_Shadow_CurseOfSargeras"},
-     {"Elements",   "curse of elements",   "Spell_Shadow_ChillTouch"},
-     {"Exhaustion", "curse of exhaustion", "Spell_Shadow_GrimWard"},
-     {"Doom",       "curse of doom",       "Spell_Shadow_AuraOfDarkness"},
-     {"Weakness",   "curse of weakness",   "Spell_Shadow_CurseOfMannoroth"},
-     {"Tongues",    "curse of tongues",    "Spell_Shadow_CurseOfTounges"},
-   }
-
-   local function UpdateCurseIcons(active)
-     for label, b in pairs(curseButtons) do
-       _MB_setDesat(b, label ~= active)
-     end
-
-     if active and curseButtons[active] then
-       local icon=nil
-       for _,v in ipairs(curseList) do if v[1]==active then icon=v[3]; break end end
-       if icon and btnCurses.icon and btnCurses.icon.SetTexture then
-         btnCurses.icon:SetTexture(MultiBot.SafeTexturePath(icon))
-       elseif icon and btnCurses.setIcon then
-         btnCurses.setIcon(icon)
-       end
-       _MB_setDesat(btnCurses, false)
-     else
-       if btnCurses.icon and btnCurses.icon.SetTexture then
-         btnCurses.icon:SetTexture(MultiBot.SafeTexturePath(btnCurses._defaultIcon))
-       elseif btnCurses.setIcon then
-         btnCurses.setIcon(btnCurses._defaultIcon)
-       end
-       _MB_setDesat(btnCurses, true)
-     end
-   end
-
-   for i, v in ipairs(curseList) do
-     local label, cmd, icon = unpack(v)
-     local b = fCurses.addButton("Curse"..label, 0, (i-1)*26, icon,
-       MultiBot.L("tips.warlock.curses." .. label:lower())
-     )
-     curseButtons[label] = b
-
-     _MB_setDesat(b, true)
-
-     b.doLeft = function(pButton)
-       local target = pButton.getName()
-
-       if fCurses.activeCurse == label then
-         SendChatMessage("co -" .. cmd .. ",?", "WHISPER", nil, target)
-         fCurses.activeCurse = nil
-         UpdateCurseIcons(nil)
-         fCurses:Hide()
-         return
-       end
-
-       if fCurses.activeCurse then
-         local old = fCurses.activeCurse
-         for _,vv in ipairs(curseList) do
-           if vv[1]==old then
-             SendChatMessage("co -" .. vv[2], "WHISPER", nil, target)
-             break
-           end
-         end
-       end
-       SendChatMessage("co +" .. cmd .. ",?", "WHISPER", nil, target)
-       fCurses.activeCurse = label
-
-       UpdateCurseIcons(fCurses.activeCurse)
-       fCurses:Hide()
-     end
-   end
-
-   for _,v in ipairs(curseList) do
-     if MultiBot.isInside(pCombat, v[2]) then fCurses.activeCurse = v[1]; break end
-   end
-   UpdateCurseIcons(fCurses.activeCurse)
-
-   fCurses:SetScript("OnShow", function(self)
-     UpdateCurseIcons(self.activeCurse)
-   end)
-   -- END CURSES --
-
-
-	-- STRATEGIES --
-    if(MultiBot.isInside(pCombat, "dps")) then pFrame.getButton("Dps").setEnable() end
-    if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-    if(MultiBot.isInside(pCombat, "dps debuff")) then pFrame.getButton("DpsDebuff").setEnable() end
-    if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-    if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
-    if(MultiBot.isInside(pCombat, "tank")) then pFrame.getButton("Tank").setEnable() end
-    if(MultiBot.isInside(pCombat, "meta melee")) then pFrame.getButton("MetaMelee").setEnable() end
-
-    -- parent buttons des menus)
-    if fCurses   and fCurses.activeCurse then   pFrame.getButton("CursesSelect").setEnable()   end
-    if fStones   and fStones.activeStone then   pFrame.getButton("StonesSelect").setEnable()   end
-    if fSoul     and fSoul.activeSS then        pFrame.getButton("SoulstonesSelect").setEnable() end
-    if fPets     and fPets.activePet then       pFrame.getButton("PetsSelect").setEnable()     end
-
+	if curse then
+		MultiBot.RestoreExclusiveGroup(pFrame, "CurseControl", WARLOCK_CURSE_ICONS[curse], "co", curse, CURSE_BUTTONS)
+	end
 end

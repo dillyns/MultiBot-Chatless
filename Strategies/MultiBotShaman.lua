@@ -1,218 +1,69 @@
-MultiBot.addShaman = function(pFrame, pCombat, pNormal)
-	pFrame.addButton("Heal", 0, 0, "spell_holy_aspiration", MultiBot.L("tips.shaman.heal")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +heal,?", "co -heal,?", pButton.getName())) then
-			pButton.getButton("Caster").setDisable()
-			pButton.getButton("Melee").setDisable()
-		end
-	end
+local MultiBot = _G.MultiBot
+if not MultiBot then return end
 
-	-- NON-COMBAT-TOTEM --
+local SHAMAN_ROLE_ENH   = "enh"
+local SHAMAN_ROLE_ELE   = "ele"
+local SHAMAN_ROLE_RESTO = "resto"
 
-	local nonCombatTotemButton = pFrame.addButton(
-		"NonCombatTotem", -30, 0, "spell_nature_manaregentotem",
-		MultiBot.L("tips.shaman.ntotem.master"))
-	nonCombatTotemButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["NonCombatTotem"])
-	end
+local SHAMAN_ROLE_ICONS = {
+	[SHAMAN_ROLE_ENH]   = "spell_nature_lightningshield",
+	[SHAMAN_ROLE_ELE]   = "spell_nature_lightning",
+	[SHAMAN_ROLE_RESTO] = "spell_nature_magicimmunity",
+}
 
-	local nonCombatTotemFrame = pFrame.addFrame("NonCombatTotem", -32, 30)
-	nonCombatTotemFrame:Hide()
+local SHAMAN_STRAT_HEALER_DPS = "healer dps"
 
-	nonCombatTotemFrame.addButton(
-		"NonCombatMana", 0, 0, "spell_nature_manaregentotem",
-		MultiBot.L("tips.shaman.ntotem.bmana"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatTotem", pButton.texture, "nc +bmana,?", pButton.getName())
-		pButton.getButton("NonCombatTotem").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bmana,?", "nc -bmana,?", btn.getName())
-		end
-	end
+local SHAMAN_STRAT_ICONS = {
+	[SHAMAN_STRAT_HEALER_DPS] = "INV_Alchemy_Elixir_02",
+}
 
-	nonCombatTotemFrame.addButton(
-		"NonCombatDps", 0, 26, "spell_nature_windfury",
-		MultiBot.L("tips.shaman.ntotem.bdps"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "NonCombatTotem", pButton.texture, "nc +bdps,?", pButton.getName())
-		pButton.getButton("NonCombatTotem").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "nc +bdps,?", "nc -bdps,?", btn.getName())
-		end
-	end
+local PLAYBOOK_BUTTONS = { SHAMAN_ROLE_ENH, SHAMAN_ROLE_ELE, SHAMAN_ROLE_RESTO }
 
-	-- STRATEGIES:NON-COMBAT-TOTEM --
-
-	if(MultiBot.isInside(pNormal, "bmana")) then
-		nonCombatTotemButton.setTexture("spell_nature_manaregentotem").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bmana,?", "nc -bmana,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pNormal, "bdps")) then
-		nonCombatTotemButton.setTexture("spell_nature_windfury").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "nc +bdps,?", "nc -bdps,?", pButton.getName())
-		end
-	end
-
-	-- COMBAT-TOTEM --
-
-	local combatTotemButton = pFrame.addButton(
-		"CombatTotem", -60, 0, "spell_nature_manaregentotem",
-		MultiBot.L("tips.shaman.ctotem.master"))
-	combatTotemButton.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.parent.frames["CombatTotem"])
-	end
-
-	local combatTotemFrame = pFrame.addFrame("CombatTotem", -62, 30)
-	combatTotemFrame:Hide()
-
-	combatTotemFrame.addButton(
-		"CombatMana", 0, 0, "spell_nature_manaregentotem",
-		MultiBot.L("tips.shaman.ctotem.bmana"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatTotem", pButton.texture, "co +bmana,?", pButton.getName())
-		pButton.getButton("CombatTotem").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +bmana,?", "co -bmana,?", btn.getName())
-		end
-	end
-
-	combatTotemFrame.addButton(
-		"CombatDps", 0, 26, "spell_nature_windfury",
-		MultiBot.L("tips.shaman.ctotem.bdps"))
-	.doLeft = function(pButton)
-		MultiBot.SelectToTarget(pButton.get(), "CombatTotem", pButton.texture, "co +bdps,?", pButton.getName())
-		pButton.getButton("CombatTotem").doRight = function(btn)
-			MultiBot.OnOffActionToTarget(btn, "co +bdps,?", "co -bdps,?", btn.getName())
-		end
-	end
-
-	-- STRATEGIES:COMBAT-TOTEM --
-
-	if(MultiBot.isInside(pCombat, "bmana")) then
-		combatTotemButton.setTexture("spell_nature_manaregentotem").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +bmana,?", "co -bmana,?", pButton.getName())
-		end
-	elseif(MultiBot.isInside(pCombat, "bdps")) then
-		combatTotemButton.setTexture("spell_nature_windfury").setEnable().doRight = function(pButton)
-			MultiBot.OnOffActionToTarget(pButton, "co +bdps,?", "co -bdps,?", pButton.getName())
-		end
-	end
+function MultiBot.addShaman(pFrame, pCombat, pNormal)
+	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
+	MultiBot.AddCombatControl(pFrame, -30, pCombat)
 
 	-- PLAYBOOK --
 
-	pFrame.addButton("Playbook", -90, 0, "inv_misc_book_06", MultiBot.L("tips.shaman.playbook.master"))
+	pFrame.addButton("Playbook", -60, 0, "inv_misc_book_06", MultiBot.L("tips.shaman.playbook.master"))
 	.doLeft = function(pButton)
 		MultiBot.ShowHideSwitch(pButton.getFrame("Playbook"))
 	end
 
-	local playbookFrame = pFrame.addFrame("Playbook", -92, 30)
-	playbookFrame:Hide()
+	local tPlaybookFrame = pFrame.addFrame("Playbook", -62, 30)
+	tPlaybookFrame:Hide()
 
-	playbookFrame.addButton(
-		"Totems", 0, 0, "inv_relics_totemofrebirth",
-		MultiBot.L("tips.shaman.playbook.totems")).setDisable()
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", SHAMAN_ROLE_ENH,    0,  SHAMAN_ROLE_ICONS[SHAMAN_ROLE_ENH],   MultiBot.L("tips.shaman.playbook.enh"),   "co", SHAMAN_ROLE_ENH,   PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", SHAMAN_ROLE_ELE,   26,  SHAMAN_ROLE_ICONS[SHAMAN_ROLE_ELE],   MultiBot.L("tips.shaman.playbook.ele"),   "co", SHAMAN_ROLE_ELE,   PLAYBOOK_BUTTONS)
+	MultiBot.AddExclusiveButton(tPlaybookFrame, "Playbook", SHAMAN_ROLE_RESTO, 52,  SHAMAN_ROLE_ICONS[SHAMAN_ROLE_RESTO], MultiBot.L("tips.shaman.playbook.resto"), "co", SHAMAN_ROLE_RESTO, PLAYBOOK_BUTTONS)
+
+	-- SHAMAN STRATEGIES --
+
+	pFrame.addButton("ShamanControl", -90, 0, "INV_Glyph_MajorShaman", MultiBot.L("tips.shaman.strategy.master"))
 	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +totems,?", "co -totems,?", pButton.getName())
+		MultiBot.ShowHideSwitch(pButton.getFrame("ShamanControlFrame"))
 	end
 
-	playbookFrame.addButton(
-		"CasterAoe", 0, 26, "spell_nature_lightningoverload",
-		MultiBot.L("tips.shaman.playbook.casterAoe")).setDisable()
+	local tControlFrame = pFrame.addFrame("ShamanControlFrame", -92, 30)
+	tControlFrame:Hide()
+
+	local healerDpsOn  = "co +" .. SHAMAN_STRAT_HEALER_DPS
+	local healerDpsOff = "co -" .. SHAMAN_STRAT_HEALER_DPS
+	tControlFrame.addButton("HealerDps", 0, 0, SHAMAN_STRAT_ICONS[SHAMAN_STRAT_HEALER_DPS], MultiBot.L("tips.shaman.strategy.healerdps")).setDisable()
 	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +caster aoe,?", "co -caster aoe,?", pButton.getName())
+		MultiBot.OnOffActionToTarget(pButton, healerDpsOn, healerDpsOff, pButton.getName())
 	end
 
-	playbookFrame.addButton("Caster", 0, 52, "spell_nature_lightning", MultiBot.L("tips.shaman.playbook.caster")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +caster,?", "co -caster,?", pButton.getName())) then
-			pButton.getButton("Melee").setDisable()
-			pButton.getButton("Heal").setDisable()
-		end
+	-- SET STRATS --
+
+	local role = nil
+	if     MultiBot.isInside(pCombat, SHAMAN_ROLE_ENH)   then role = SHAMAN_ROLE_ENH   tPlaybookFrame.getButton(SHAMAN_ROLE_ENH).setEnable()
+	elseif MultiBot.isInside(pCombat, SHAMAN_ROLE_ELE)   then role = SHAMAN_ROLE_ELE   tPlaybookFrame.getButton(SHAMAN_ROLE_ELE).setEnable()
+	elseif MultiBot.isInside(pCombat, SHAMAN_ROLE_RESTO) then role = SHAMAN_ROLE_RESTO tPlaybookFrame.getButton(SHAMAN_ROLE_RESTO).setEnable()
+	end
+	if role then
+		MultiBot.RestoreExclusiveGroup(pFrame, "Playbook", SHAMAN_ROLE_ICONS[role], "co", role, PLAYBOOK_BUTTONS)
 	end
 
-	playbookFrame.addButton(
-		"MeleeAoe", 0, 78, "ability_warrior_shockwave",
-		MultiBot.L("tips.shaman.playbook.meleeAoe")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +melee aoe,?", "co -melee aoe,?", pButton.getName())
-	end
-
-	playbookFrame.addButton("Melee", 0, 104, "ability_parry", MultiBot.L("tips.shaman.playbook.melee")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +melee,?", "co -melee,?", pButton.getName())) then
-			pButton.getButton("Caster").setDisable()
-			pButton.getButton("Heal").setDisable()
-		end
-	end
-
-	-- UTILITAIRE : CURE --
-	pFrame.addButton("Cure", -180, 0, "Ability_Creature_Poison_02", MultiBot.L("tips.shaman.playbook.cure")).setDisable()
-	.doLeft = function(pButton)
-		MultiBot.OnOffActionToTarget(pButton, "co +cure,?", "co -cure,?", pButton.getName())
-	end
-
-	-- STRATEGIES:PLAYBOOK --
-
-	if(MultiBot.isInside(pCombat, "heal")) then pFrame.getButton("Heal").setEnable() end
-	if(MultiBot.isInside(pCombat, "melee,")) then pFrame.getButton("Melee").setEnable() end
-	if(MultiBot.isInside(pCombat, "totems")) then pFrame.getButton("Totems").setEnable() end
-	if(MultiBot.isInside(pCombat, "caster,")) then pFrame.getButton("Caster").setEnable() end
-	if(MultiBot.isInside(pCombat, "melee aoe")) then pFrame.getButton("MeleeAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "caster aoe")) then pFrame.getButton("CasterAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "cure")) then pFrame.getButton("Cure").setEnable() end
-
-	-- DPS --
-
-	pFrame.addButton("DpsControl", -120, 0, "ability_warrior_challange", MultiBot.L("tips.shaman.dps.master"))
-	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("DpsControl"))
-	end
-
-	local dpsControlFrame = pFrame.addFrame("DpsControl", -122, 30)
-	dpsControlFrame:Hide()
-
-	dpsControlFrame.addButton("DpsAssist", 0, 0, "spell_holy_heroism", MultiBot.L("tips.shaman.dps.dpsAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps assist,?", "co -dps assist,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	dpsControlFrame.addButton("DpsAoe", 0, 26, "spell_holy_surgeoflight", MultiBot.L("tips.shaman.dps.dpsAoe")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +dps aoe,?", "co -dps aoe,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
-	end
-
-	-- HEALER DPS --
-	dpsControlFrame.addButton("HealerDps", 0, 52, "INV_Alchemy_Elixir_02", MultiBot.L("tips.shaman.dps.healerdps")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +healer dps,?", "co -healer dps,?", pButton.getName())) then
-			pButton.getButton("TankAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-			pButton.getButton("DpsAssist").setDisable()
-		end
-	end
-
-	if MultiBot.AddCommonCombatStrategyButtons then
-		MultiBot.AddCommonCombatStrategyButtons(pFrame, dpsControlFrame, pCombat, 78)
-	end
-
-	-- ASSIST --
-
-	pFrame.addButton("TankAssist", -150, 0, "ability_warrior_innerrage", MultiBot.L("tips.shaman.tankAssist")).setDisable()
-	.doLeft = function(pButton)
-		if(MultiBot.OnOffActionToTarget(pButton, "co +tank assist,?", "co -tank assist,?", pButton.getName())) then
-			pButton.getButton("DpsAssist").setDisable()
-			pButton.getButton("DpsAoe").setDisable()
-		end
-	end
-
-	-- STRATEGIES --
-
-	if(MultiBot.isInside(pCombat, "dps aoe")) then pFrame.getButton("DpsAoe").setEnable() end
-	if(MultiBot.isInside(pCombat, "dps assist")) then pFrame.getButton("DpsAssist").setEnable() end
-	if(MultiBot.isInside(pCombat, "healer dps")) then pFrame.getButton("HealerDps").setEnable() end
-	if(MultiBot.isInside(pCombat, "tank assist")) then pFrame.getButton("TankAssist").setEnable() end
-
+	if MultiBot.isInside(pCombat, SHAMAN_STRAT_HEALER_DPS) then tControlFrame.getButton("HealerDps").setEnable() end
 end
