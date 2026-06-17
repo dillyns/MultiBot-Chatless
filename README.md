@@ -28,7 +28,7 @@
   <tr>
     <td><strong>Client Addon</strong></td>
     <td>
-      <a href="https://github.com/Wishmaster117/MultiBot-Chatless">
+      <a href="https://github.com/dillyns/MultiBot-Chatless">
         MultiBot-Chatless
       </a>
     </td>
@@ -39,7 +39,7 @@
   <tr>
     <td><strong>Server Bridge Module</strong></td>
     <td>
-      <a href="https://github.com/Wishmaster117/mod-multibot-bridge">
+      <a href="https://github.com/dillyns/mod-multibot-bridge">
         mod-multibot-bridge
       </a>
     </td>
@@ -61,7 +61,7 @@ To get the new bridge-first / mostly chatless behavior, you also need the server
 
 <div align="center">
 
-### 👉 <a href="https://github.com/Wishmaster117/mod-multibot-bridge">mod-multibot-bridge</a>
+### 👉 <a href="https://github.com/dillyns/mod-multibot-bridge">mod-multibot-bridge</a>
 
 </div>
 
@@ -272,7 +272,7 @@ The goal is to remove automatic UI-refresh spam.
 
 - [`AzerothCore WotLK`](https://github.com/mod-playerbots/azerothcore-wotlk/tree/Playerbot).
 - [`mod-playerbots`](https://github.com/mod-playerbots/mod-playerbots).
-- [`mod-multibot-bridge`](https://github.com/Wishmaster117/mod-multibot-bridge).
+- [`mod-multibot-bridge`](https://github.com/dillyns/mod-multibot-bridge).
 
 ---
 
@@ -284,7 +284,7 @@ Clone the bridge module inside your AzerothCore `modules` directory:
 
 ```bash
 cd /path/to/azerothcore/modules
-git clone https://github.com/Wishmaster117/mod-multibot-bridge.git mod-multibot-bridge
+git clone https://github.com/dillyns/mod-multibot-bridge.git mod-multibot-bridge
 ```
 
 Expected structure:
@@ -325,7 +325,7 @@ Clone this repository into your World of Warcraft AddOns directory.
 
 ```bash
 cd "World of Warcraft/Interface/AddOns"
-git clone https://github.com/Wishmaster117/MultiBot-Chatless.git MultiBot
+git clone https://github.com/dillyns/MultiBot-Chatless.git MultiBot
 ```
 
 Expected structure:
@@ -645,7 +645,7 @@ MultiBot-Chatless/
   </tr>
   <tr>
     <td>
-      <a href="https://github.com/Wishmaster117/MultiBot-Chatless">
+      <a href="https://github.com/dillyns/MultiBot-Chatless">
         MultiBot-Chatless
       </a>
     </td>
@@ -655,22 +655,12 @@ MultiBot-Chatless/
   </tr>
   <tr>
     <td>
-      <a href="https://github.com/Wishmaster117/mod-multibot-bridge">
+      <a href="https://github.com/dillyns/mod-multibot-bridge">
         mod-multibot-bridge
       </a>
     </td>
     <td>
       AzerothCore server-side bridge module.
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <a href="https://github.com/Wishmaster117/MultiBot-Standalone">
-        MultiBot-Standalone
-      </a>
-    </td>
-    <td>
-      Deprecated combined repository kept for history.
     </td>
   </tr>
   <tr>
@@ -705,11 +695,11 @@ Thanks to the Playerbots team and the AzerothCore community.
 
 <br><br>
 
-<a href="https://github.com/Wishmaster117/MultiBot-Chatless">
+<a href="https://github.com/dillyns/MultiBot-Chatless">
   Client Addon
 </a>
 &nbsp;•&nbsp;
-<a href="https://github.com/Wishmaster117/mod-multibot-bridge">
+<a href="https://github.com/dillyns/mod-multibot-bridge">
   Bridge Module
 </a>
 
