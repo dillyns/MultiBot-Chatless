@@ -95,6 +95,9 @@ local function ensureBridgeState()
   state.lastPingToken = state.lastPingToken or nil
   state.lastError = state.lastError or nil
   state.roster = state.roster or {}
+  state.accountRoster = state.accountRoster or {}
+  state.guildRoster = state.guildRoster or {}
+  state.friendRoster = state.friendRoster or {}
   state.states = state.states or {}
   state.details = state.details or {}
   state.professions = state.professions or {}
@@ -232,6 +235,18 @@ end
 
 function Comm.RequestRoster()
   return Comm.Send("GET", "ROSTER")
+end
+
+function Comm.RequestAccountRoster()
+  return Comm.Send("GET", "ACCOUNT_ROSTER")
+end
+
+function Comm.RequestGuildRoster()
+  return Comm.Send("GET", "GUILD_ROSTER")
+end
+
+function Comm.RequestFriendRoster()
+  return Comm.Send("GET", "FRIEND_ROSTER")
 end
 
 function Comm.RequestState(name)
@@ -950,6 +965,19 @@ local function parseBridgeProfessionPayload(payload)
   }
 end
 
+local function parseOfflineRosterEntry(entry)
+  local fields = {}
+  for value in string.gmatch(entry or "", "([^,]+)") do
+    fields[#fields + 1] = value
+  end
+
+  return {
+    name = fields[1],
+    classId = tonumber(fields[2] or "0") or 0,
+    level = tonumber(fields[3] or "0") or 0,
+  }
+end
+
 local function parseRosterEntry(entry)
   local fields = {}
   for value in string.gmatch(entry or "", "([^,]+)") do
@@ -988,6 +1016,66 @@ function Comm.ApplyRosterPayload(payload)
   end
 
   debugPrint("ADDON:RX", "ROSTER", tostring(#roster))
+  return roster
+end
+
+function Comm.ApplyAccountRosterPayload(payload)
+  local state = ensureBridgeState()
+  local roster = {}
+
+  if type(payload) == "string" and payload ~= "" then
+    for entry in string.gmatch(payload, "([^;]+)") do
+      roster[#roster + 1] = parseOfflineRosterEntry(entry)
+    end
+  end
+
+  state.accountRoster = roster
+
+  if MultiBot.OnBridgeAccountRoster then
+    MultiBot.OnBridgeAccountRoster(roster)
+  end
+
+  debugPrint("ADDON:RX", "ACCOUNT_ROSTER", tostring(#roster))
+  return roster
+end
+
+function Comm.ApplyGuildRosterPayload(payload)
+  local state = ensureBridgeState()
+  local roster = {}
+
+  if type(payload) == "string" and payload ~= "" then
+    for entry in string.gmatch(payload, "([^;]+)") do
+      roster[#roster + 1] = parseOfflineRosterEntry(entry)
+    end
+  end
+
+  state.guildRoster = roster
+
+  if MultiBot.OnBridgeGuildRoster then
+    MultiBot.OnBridgeGuildRoster(roster)
+  end
+
+  debugPrint("ADDON:RX", "GUILD_ROSTER", tostring(#roster))
+  return roster
+end
+
+function Comm.ApplyFriendRosterPayload(payload)
+  local state = ensureBridgeState()
+  local roster = {}
+
+  if type(payload) == "string" and payload ~= "" then
+    for entry in string.gmatch(payload, "([^;]+)") do
+      roster[#roster + 1] = parseOfflineRosterEntry(entry)
+    end
+  end
+
+  state.friendRoster = roster
+
+  if MultiBot.OnBridgeFriendRoster then
+    MultiBot.OnBridgeFriendRoster(roster)
+  end
+
+  debugPrint("ADDON:RX", "FRIEND_ROSTER", tostring(#roster))
   return roster
 end
 
@@ -2263,6 +2351,27 @@ function Comm.HandleAddonMessage(prefix, message, distribution, sender)
     state.connected = true
     state.lastError = nil
     Comm.ApplyRosterPayload(payload)
+    return true
+  end
+
+  if opcode == "ACCOUNT_ROSTER" then
+    state.connected = true
+    state.lastError = nil
+    Comm.ApplyAccountRosterPayload(payload)
+    return true
+  end
+
+  if opcode == "GUILD_ROSTER" then
+    state.connected = true
+    state.lastError = nil
+    Comm.ApplyGuildRosterPayload(payload)
+    return true
+  end
+
+  if opcode == "FRIEND_ROSTER" then
+    state.connected = true
+    state.lastError = nil
+    Comm.ApplyFriendRosterPayload(payload)
     return true
   end
 

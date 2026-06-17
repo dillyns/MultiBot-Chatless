@@ -137,31 +137,37 @@ function AceUI.BindWindowPosition(window, persistenceKey)
     end)
 end
 
-function AceUI.CreatePopupHost(title, width, height, missingDepMessage, persistenceKey, escapePrefix)
-    local aceGUI = AceUI.ResolveAceGUI(missingDepMessage or "AceGUI-3.0 is required")
-    if not aceGUI then
-        return nil
-    end
+-- Creates a standard MultiBot AceGUI Window with strata, escape-close, position binding,
+-- and close-to-hide already wired up. Layout is NOT set — the caller sets it.
+-- Returns the AceGUI window widget, or nil if AceGUI is unavailable.
+function AceUI.CreateWindow(title, width, height, persistenceKey, escapePrefix)
+    local aceGUI = AceUI.GetAceGUI()
+    if not aceGUI then return nil end
 
     local window = aceGUI:Create("Window")
-    if not window then
-        return nil
-    end
+    if not window then return nil end
 
     window:SetTitle(title or "")
     window:SetWidth(width)
     window:SetHeight(height)
     window:EnableResize(false)
-    window:SetLayout("Fill")
+
     local strataLevel = MultiBot.GetGlobalStrataLevel and MultiBot.GetGlobalStrataLevel()
-    if strataLevel then
-        window.frame:SetFrameStrata(strataLevel)
-    end
+    window.frame:SetFrameStrata(strataLevel or "DIALOG")
 
     AceUI.SetWindowCloseToHide(window)
-    AceUI.RegisterWindowEscapeClose(window, escapePrefix or "PopupHost")
+    AceUI.RegisterWindowEscapeClose(window, escapePrefix or "Popup")
     AceUI.BindWindowPosition(window, persistenceKey)
     window:Hide()
+
+    return window
+end
+
+function AceUI.CreatePopupHost(title, width, height, persistenceKey, escapePrefix)
+    local window = AceUI.CreateWindow(title, width, height, persistenceKey, escapePrefix or "PopupHost")
+    if not window then return nil end
+
+    window:SetLayout("Fill")
 
     local host = CreateFrame("Frame", nil, window.content)
     host:SetAllPoints(window.content)
@@ -182,12 +188,85 @@ function AceUI.CreatePopupHost(title, width, height, missingDepMessage, persiste
     return host
 end
 
+-- Creates any AceGUI widget as a manually-anchored child of parentWidget.
+-- Layout automation is suppressed (noAutoHeight + LayoutFinished no-op) so the
+-- parent's DoLayout never overwrites the manual SetPoint.
+-- The parent's layout is forced to "None" automatically.
+-- The anchor frame is parentWidget.content if it exists, otherwise parentWidget.frame.
+--   anchor           : point string used on both sides of SetPoint; defaults to "TOPLEFT".
+--   frameLevelOffset : added to anchorFrame:GetFrameLevel(); defaults to 1.
+-- Widgets: Button, Label, CheckBox, Dropdown, EditBox, Slider, Icon, Heading,
+--   InteractiveLabel, MultiLineEditBox, ColorPicker, Keybinding,
+--   InlineGroup, SimpleGroup, DropdownGroup, TabGroup, TreeGroup, ScrollFrame.
+function AceUI.AddFixedChild(parentWidget, widgetType, x, y, width, height, anchor, frameLevelOffset)
+    local aceGUI = AceUI.GetAceGUI()
+    if not aceGUI or not parentWidget then return nil end
+    if not AceUI._noneLayoutRegistered then
+        aceGUI:RegisterLayout("None", function() end)
+        AceUI._noneLayoutRegistered = true
+    end
+    parentWidget:SetLayout("None")
+    local widget = aceGUI:Create(widgetType)
+    if not widget then return nil end
+    widget.noAutoHeight = true
+    widget.LayoutFinished = function() end
+    widget:SetWidth(width)
+    widget:SetHeight(height)
+    parentWidget:AddChild(widget)
+    local af = parentWidget.content or parentWidget.frame
+    local pt = anchor or "TOPLEFT"
+    widget.frame:ClearAllPoints()
+    widget.frame:SetPoint(pt, af, pt, x, y)
+    widget.frame:SetFrameLevel(af:GetFrameLevel() + (frameLevelOffset or 1))
+    return widget
+end
+
+-- Creates a fixed-size AceGUI widget (InlineGroup, DropdownGroup, SimpleGroup, …)
+-- as a manually-anchored child of any AceGUI container (Window, InlineGroup, SimpleGroup, …).
+-- The widget is pinned to the parent's content frame BOTTOMRIGHT at the given offset.
+-- title is optional; meaningful only for InlineGroup / DropdownGroup.
+function AceUI.CreateFixedWidget(container, widgetType, x, y, width, height, title, frameLevelOffset)
+    if not container or not container.content then return nil end
+    local widget = AceUI.AddFixedChild(container, widgetType or "InlineGroup", x, y, width, height, "BOTTOMRIGHT", frameLevelOffset or 1)
+    if widget and title and title ~= "" then widget:SetTitle(title) end
+    return widget
+end
+
+-- Creates a fixed AceGUI Button as a child of containerWidget, anchored BOTTOMRIGHT.
+-- height defaults to 20.
+-- Callbacks: OnClick(widget, button)  OnEnter(widget)  OnLeave(widget)
+function AceUI.CreateFixedButton(containerWidget, label, x, y, width, height, frameLevelOffset)
+    if not containerWidget then return nil end
+    local btn = AceUI.AddFixedChild(containerWidget, "Button", x, y, width or 80, height or 20, "BOTTOMRIGHT", frameLevelOffset)
+    if btn and label then btn:SetText(label) end
+    return btn
+end
+
+-- Creates a fixed AceGUI Icon (clickable image widget) as a child of containerWidget,
+-- anchored BOTTOMRIGHT. width/height default to 36.
+-- image       : texture path passed to widget:SetImage(image).
+-- imageWidth/imageHeight : passed to widget:SetImageSize(); default to widget size.
+-- label       : optional text shown below the icon via widget:SetLabel(label).
+-- Callbacks: OnClick(widget, button)  OnEnter(widget)  OnLeave(widget)
+function AceUI.CreateFixedIcon(containerWidget, image, x, y, width, height, imageWidth, imageHeight, label, frameLevelOffset)
+    if not containerWidget then return nil end
+    local w = width or 36
+    local h = height or 36
+    local icon = AceUI.AddFixedChild(containerWidget, "Icon", x, y, w, h, "BOTTOMRIGHT", frameLevelOffset)
+    if icon then
+        if image then icon:SetImage(image) end
+        icon:SetImageSize(imageWidth or w, imageHeight or h)
+        if label then icon:SetLabel(label) end
+    end
+    return icon
+end
+
 MultiBot.GetLocalizedQuestName = MultiBot.GetLocalizedQuestName or AceUI.GetLocalizedQuestName
 MultiBot.GetAceGUI = MultiBot.GetAceGUI or AceUI.GetAceGUI
 MultiBot.ResolveAceGUI = MultiBot.ResolveAceGUI or AceUI.ResolveAceGUI
 MultiBot.SetAceWindowCloseToHide = MultiBot.SetAceWindowCloseToHide or AceUI.SetWindowCloseToHide
 MultiBot.RegisterAceWindowEscapeClose = MultiBot.RegisterAceWindowEscapeClose or AceUI.RegisterWindowEscapeClose
 MultiBot.BindAceWindowPosition = MultiBot.BindAceWindowPosition or AceUI.BindWindowPosition
-MultiBot.CreateAceQuestPopupHost = MultiBot.CreateAceQuestPopupHost or function(title, width, height, missingDepMessage, persistenceKey)
-    return AceUI.CreatePopupHost(title, width, height, missingDepMessage, persistenceKey, "QuestHost")
+MultiBot.CreateAceQuestPopupHost = MultiBot.CreateAceQuestPopupHost or function(title, width, height, persistenceKey)
+    return AceUI.CreatePopupHost(title, width, height, persistenceKey, "QuestHost")
 end
