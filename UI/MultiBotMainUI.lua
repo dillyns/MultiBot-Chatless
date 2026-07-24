@@ -238,7 +238,6 @@ local function resetDefaultWindowPositions()
     MultiBot.talent.setPoint(-104, -276)
     MultiBot.reward.setPoint(-754, 238)
     MultiBot.itemus.setPoint(-860, -144)
-    MultiBot.iconos.setPoint(-860, -144)
     local statsFrame = MultiBot.EnsureStatsUI and MultiBot.EnsureStatsUI() or MultiBot.stats
     if statsFrame and statsFrame.setPoint then
         statsFrame.setPoint(-60, 560)
@@ -246,11 +245,6 @@ local function resetDefaultWindowPositions()
 end
 
 local function toggleMasters(button)
-    if MultiBot.GM == false then
-        SendChatMessage(MultiBot.L("info.rights"), "SAY")
-        return
-    end
-
     if MultiBot.OnOffSwitch(button) then
         MultiBot.doRepos("Right", 38)
         MultiBot.frames["MultiBar"].frames["Masters"]:Hide()

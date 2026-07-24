@@ -65,8 +65,6 @@ MultiBot.InitializeInventoryFrame()
 
 MultiBot.InitializeItemusFrame()
 
-MultiBot.InitializeIconosFrame()
-
 MultiBot.InitializeSpellBookFrame()
 
 if MultiBot.InitializeCharacterInfoFrame then

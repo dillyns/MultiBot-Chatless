@@ -4,15 +4,41 @@ Adds a “Set talents” button on each bot frame and builds a dynamic dropdown 
 with all spec builds returned by the command  /w <bot> "talents spec list".
 ]]--
 
-local function getSpecIcons()
-  local icons = MultiBot.data and MultiBot.data.iconos
-  if type(icons) ~= "table" then
-    return {}
-  end
-  return icons
-end
-
-local icons = getSpecIcons()
+local icons = {
+    [28] = "Interface\\Icons\\Ability_Druid_CatForm",
+    [73] = "Interface\\Icons\\Ability_Druid_Starfall",
+    [103] = "Interface\\Icons\\Ability_Hunter_BeastTaming",
+    [181] = "Interface\\Icons\\Ability_Hunter_SurvivalInstincts",
+    [200] = "Interface\\Icons\\Ability_Mage_FrostFireBolt",
+    [214] = "Interface\\Icons\\Ability_Marksmanship",
+    [300] = "Interface\\Icons\\Ability_Paladin_DivineStorm",
+    [325] = "Interface\\Icons\\Ability_Racial_BearForm",
+    [331] = "Interface\\Icons\\Ability_Rogue_Ambush",
+    [346] = "Interface\\Icons\\Ability_Rogue_Eviscerate",
+    [358] = "Interface\\Icons\\Ability_Rogue_MurderSpree",
+    [436] = "Interface\\Icons\\Ability_Warrior_Bladestorm",
+    [480] = "Interface\\Icons\\Ability_Warrior_TitansGrip",
+    [4456] = "Interface\\Icons\\INV_Shield_06",
+    [5427] = "Interface\\Icons\\Spell_Deathknight_BloodPresence",
+    [5438] = "Interface\\Icons\\Spell_Deathknight_FrostPresence",
+    [5454] = "Interface\\Icons\\Spell_Deathknight_UnholyPresence",
+    [5494] = "Interface\\Icons\\Spell_Fire_FlameBolt",
+    [5521] = "Interface\\Icons\\Spell_Frost_ColdHearted",
+    [5551] = "Interface\\Icons\\Spell_Holy_ArcaneIntellect",
+    [5578] = "Interface\\Icons\\SPELL_HOLY_DEVOTIONAURA",
+    [5601] = "Interface\\Icons\\Spell_Holy_GuardianSpirit",
+    [5608] = "Interface\\Icons\\Spell_Holy_HolyBolt",
+    [5685] = "Interface\\Icons\\Spell_Holy_WordFortitude",
+    [5716] = "Interface\\Icons\\Spell_Nature_BloodLust",
+    [5745] = "Interface\\Icons\\Spell_Nature_HealingTouch",
+    [5755] = "Interface\\Icons\\Spell_Nature_LightningShield",
+    [5756] = "Interface\\Icons\\Spell_Nature_MagicImmunity",
+    [5852] = "Interface\\Icons\\Spell_Shadow_DeathCoil",
+    [5889] = "Interface\\Icons\\Spell_Shadow_Metamorphosis",
+    [5907] = "Interface\\Icons\\Spell_Shadow_RainOfFire",
+    [5929] = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
+    [5946] = "Interface\\Icons\\Spell_Shadow_Twilight",
+}
 
 local defaultIcon = "Interface\\Icons\\Achievement_Reputation_08"
 

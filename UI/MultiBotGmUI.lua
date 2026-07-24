@@ -23,27 +23,6 @@ local GM_UI_BUTTONS = {
         end,
     },
     {
-        label = "Iconos",
-        y = 102,
-        icon = "inv_mask_01",
-        tip = "tips.game.iconos",
-        click = function()
-            local iconos = MultiBot.iconos or (MultiBot.InitializeIconosFrame and MultiBot.InitializeIconosFrame())
-            if not iconos then
-                return
-            end
-
-            if iconos.Toggle then
-                iconos:Toggle()
-                return
-            end
-
-            if MultiBot.ShowHideSwitch(iconos) and iconos.addIcons then
-                iconos:addIcons()
-            end
-        end,
-    },
-    {
         label = "Summon",
         y = 136,
         icon = "spell_holy_prayerofspirit",

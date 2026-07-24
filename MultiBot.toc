@@ -45,7 +45,6 @@ Locales\MultiBotAceLocale-zhCN.lua
 Locales\MultiBotAceLocale-koKR.lua
 Data\HunterPetFamily.lua
 Data\HunterPetList.lua
-Data\MultiBotIconos.lua
 Data\MultiBotItemus.lua
 Core\MultiBotEngine.lua
 Core\MultiBotHandler.lua
@@ -72,7 +71,6 @@ UI\MultiBotInventoryItem.lua
 UI\MultiBotBankFrame.lua
 UI\MultiBotInspectUI.lua
 UI\MultiBotItemusFrame.lua
-UI\MultiBotIconosFrame.lua
 UI\MultiBotItem.lua
 UI\MultiBotTalentFrame.lua
 UI\MultiBotHunterQuickFrame.lua
