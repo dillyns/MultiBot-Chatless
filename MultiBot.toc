@@ -110,5 +110,4 @@ UI\MultiBotSpecUI.lua
 UI\MultiBotTalent.lua
 UI\MultiBotPVPUI.lua
 Features\MultiBotReward.lua
-Features\MultiBotNecronet.lua
 Features\MultiBotRaidus.lua

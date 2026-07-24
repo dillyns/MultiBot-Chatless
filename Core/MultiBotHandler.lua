@@ -155,7 +155,6 @@ function MultiBot.HandleOnUpdate(pElapsed)
 		end
 
 		if(MultiBot.isMember(tTable[MultiBot.timer.invite.index]) == false) then
-			SendChatMessage(MultiBot.doReplace(MultiBot.L("info.inviting"), "NAME", tTable[MultiBot.timer.invite.index]), "SAY")
 			SendChatMessage(".playerbot bot add " .. tTable[MultiBot.timer.invite.index], "SAY")
 			MultiBot.timer.invite.needs = MultiBot.timer.invite.needs - 1
 		end
@@ -197,7 +196,6 @@ local MAINBAR_STATE_KEYS = {
 	"AttackButton",
 	"FleeButton",
 	"AutoRelease",
-	"NecroNet",
 	"Reward",
 	"Masters",
 	"Creator",
@@ -894,9 +892,6 @@ local function restoreMainBarSavedStates()
 	restoreBinaryLeftToggle("AutoRelease", function()
 		return getMainBarButton("Release")
 	end)
-	restoreBinaryLeftToggle("NecroNet", function()
-		return getMastersBarButton("NecroNet")
-	end)
 	restoreBinaryLeftToggle("Reward", function()
 		return getMainBarButton("Reward")
 	end)
@@ -1370,7 +1365,6 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 		setSavedMainBarValue("FleeButton", getBoundButtonTextureKey(leftButtons and leftButtons["Flee"], FLEE_BUTTON_BINDINGS, "flee"))
 
 		setSavedMainBarValue("AutoRelease", MultiBot.IF(MultiBot.auto.release, "true", "false"))
-		setSavedMainBarValue("NecroNet", MultiBot.IF(MultiBot.necronet.state, "true", "false"))
 		setSavedMainBarValue("Reward", MultiBot.IF(MultiBot.reward.state, "true", "false"))
 
 		setSavedMainBarValue("Masters", mainButtonState("Masters"))
@@ -1605,7 +1599,7 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 			tPlayer.name = tName
 
 			tPlayer.doLeft = function(pButton)
-				SendChatMessage(".playerbot bot self", "SAY")
+				SendChatMessage(".playerbots bot self", "SAY")
 				MultiBot.OnOffSwitch(pButton)
 			end
 
@@ -2358,30 +2352,6 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 		return
 	end
 
-	-- WORLD:MAP --
-
-	if(event == "WORLD_MAP_UPDATE") then
-		if(MultiBot.necronet.state == false) then return end
-
-		local tCont = GetCurrentMapContinent()
-		local tArea = GetCurrentMapAreaID()
-
-		-- Recalculate Necronet button positions when map size changes
-		if MultiBot.Necronet_RecalcButtons then MultiBot.Necronet_RecalcButtons() end
-
-		if(MultiBot.necronet.cont ~= tCont or MultiBot.necronet.area ~= tArea) then
-			for key, value in pairs(MultiBot.necronet.buttons) do value:Hide() end
-
-			MultiBot.necronet.cont = tCont
-			MultiBot.necronet.area = tArea
-
-			local tTable = MultiBot.necronet.index[tCont]
-			if(tTable ~= nil) then tTable = tTable[tArea] end
-			if(tTable ~= nil) then for key, value in pairs(tTable) do value:Show() end end
-		end
-
-		return
-	end
 end
 
 MultiBot:SetScript("OnEvent", function(_, eventName, ...)

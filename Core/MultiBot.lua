@@ -18,7 +18,6 @@ ensureValue(MultiBot, "_coreEventsRegistered", false)
 ensureValue(MultiBot, "_initEventsRegistered", false)
 
 local CORE_EVENTS = {
-  "WORLD_MAP_UPDATE",
   "PLAYER_ENTERING_WORLD",
   "GROUP_ROSTER_UPDATE",
   "PARTY_MEMBERS_CHANGED",

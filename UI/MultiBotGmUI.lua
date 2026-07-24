@@ -166,32 +166,6 @@ function MultiBot.BuildGmUI(tMultiBar)
     local mastersFrame = tMultiBar.addFrame("Masters", 36, 38)
     mastersFrame:Hide()
 
-    local necroButton = mastersFrame.addButton(
-        "NecroNet",
-        0,
-        0,
-        "achievement_bg_xkills_avgraveyard",
-        MultiBot.L("tips.game.necronet")
-    )
-    necroButton:setDisable()
-
-    necroButton.doLeft = function(button)
-        if button.state then
-            MultiBot.necronet.state = false
-            for _, value in pairs(MultiBot.necronet.buttons) do
-                value:Hide()
-            end
-            button:setDisable()
-            return
-        end
-
-        MultiBot.necronet.cont = 0
-        MultiBot.necronet.area = 0
-        MultiBot.necronet.zone = 0
-        MultiBot.necronet.state = true
-        button:setEnable()
-    end
-
     local portalButton = mastersFrame.addButton("Portal", 0, 34, "inv_box_02", MultiBot.L("tips.game.portal"))
     local portalFrame = mastersFrame.addFrame("Portal", 30, 36)
     portalFrame:Hide()
