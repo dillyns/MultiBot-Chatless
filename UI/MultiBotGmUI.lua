@@ -2,27 +2,6 @@ if not MultiBot then return end
 
 local GM_UI_BUTTONS = {
     {
-        label = "Itemus",
-        y = 68,
-        icon = "inv_box_01",
-        tip = "tips.game.itemus",
-        click = function()
-            local itemus = MultiBot.itemus or (MultiBot.InitializeItemusFrame and MultiBot.InitializeItemusFrame())
-            if not itemus then
-                return
-            end
-
-            if itemus.Toggle then
-                itemus:Toggle()
-                return
-            end
-
-            if MultiBot.ShowHideSwitch(itemus) and itemus.addItems then
-                itemus.addItems()
-            end
-        end,
-    },
-    {
         label = "Summon",
         y = 136,
         icon = "spell_holy_prayerofspirit",

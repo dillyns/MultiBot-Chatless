@@ -237,7 +237,6 @@ local function resetDefaultWindowPositions()
     MultiBot.spellbook.setPoint(-802, 302)
     MultiBot.talent.setPoint(-104, -276)
     MultiBot.reward.setPoint(-754, 238)
-    MultiBot.itemus.setPoint(-860, -144)
     local statsFrame = MultiBot.EnsureStatsUI and MultiBot.EnsureStatsUI() or MultiBot.stats
     if statsFrame and statsFrame.setPoint then
         statsFrame.setPoint(-60, 560)
