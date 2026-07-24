@@ -199,7 +199,6 @@ local MAINBAR_STATE_KEYS = {
 	"Reward",
 	"Masters",
 	"Creator",
-	"Beast",
 	"Disperse",
 	"Loot",
 	"Expand",
@@ -900,9 +899,6 @@ local function restoreMainBarSavedStates()
 	restoreEnableOnlyLeftToggle("Creator", function()
 		return getMainBarButton("Creator")
 	end)
-	restoreEnableOnlyLeftToggle("Beast", function()
-		return getMainBarButton("Beast")
-	end)
 	restoreEnableOnlyLeftToggle("Disperse", function()
 		return getMainBarButton("Disperse")
 	end)
@@ -1365,7 +1361,6 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 
 		setSavedMainBarValue("Masters", mainButtonState("Masters"))
 		setSavedMainBarValue("Creator", mainButtonState("Creator"))
-		setSavedMainBarValue("Beast", mainButtonState("Beast"))
 		setSavedMainBarValue("Disperse", mainButtonState("Disperse"))
 		setSavedMainBarValue("Loot", mainButtonState("Loot"))
 		setSavedMainBarValue("Expand", mainButtonState("Expand"))

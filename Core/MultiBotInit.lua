@@ -24,10 +24,6 @@ elseif MultiBot.dprint then
 	MultiBot.dprint("INIT", "BuildFormationUI missing at init time")
 end
 
-if MultiBot.InitializeBeastUI then
-	MultiBot.InitializeBeastUI(tLeft)
-end
-
 if MultiBot.InitializeCreatorUI then
 	MultiBot.InitializeCreatorUI(tLeft)
 end

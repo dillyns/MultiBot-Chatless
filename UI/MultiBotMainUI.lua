@@ -14,7 +14,6 @@ local MAINBAR_AUTOHIDE_UPDATE_INTERVAL = 0.2
 
 local LEFT_LAYOUT_NAMES = {
     "Creator",
-    "Beast",
     "Disperse",
     "Loot",
     "BotRTI",
@@ -27,7 +26,6 @@ local LEFT_LAYOUT_NAMES = {
     "ExpandFollow",
     "Flee",
     "Format",
-    "Beast",
 }
 
 local LEFT_LAYOUT_FRAME_NAMES = {
@@ -38,7 +36,6 @@ local LEFT_LAYOUT_FRAME_NAMES = {
 
 local PRE_FORMAT_LEFT_TOGGLE_ORDER = {
     "Creator",
-    "Beast",
 }
 
 local POST_FORMAT_LEFT_TOGGLE_ORDER = {
@@ -294,10 +291,6 @@ end
 
 local function toggleCreator(button)
     toggleLeftControl(button, "Creator")
-end
-
-local function toggleBeast(button)
-    toggleLeftControl(button, "Beast")
 end
 
 local function toggleDisperse(button)
@@ -1279,7 +1272,6 @@ function MultiBot.InitializeMainUI(tMultiBar)
         "RTSC",
         "Raidus",
         "Creator",
-        "Beast",
         "Disperse",
         "Loot",
         "Expand",
@@ -1405,18 +1397,6 @@ function MultiBot.InitializeMainUI(tMultiBar)
         end,
     })
     wireShiftRightSwap(mainFrame.buttons["Creator"], "Creator")
-
-    createMainActionButton(mainFrame, {
-        name = "Beast",
-        y = 170,
-        icon = "ability_mount_swiftredwindrider",
-        tip = "tips.main.beast",
-        disabled = true,
-        doLeft = function(button)
-            toggleBeast(button)
-        end,
-    })
-    wireShiftRightSwap(mainFrame.buttons["Beast"], "Beast")
 
     createMainActionButton(mainFrame, {
         name = "Disperse",

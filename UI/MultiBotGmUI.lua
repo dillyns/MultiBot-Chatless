@@ -1,26 +1,5 @@
 if not MultiBot then return end
 
-local GM_UI_BUTTONS = {
-    {
-        label = "Summon",
-        y = 136,
-        icon = "spell_holy_prayerofspirit",
-        tip = "tips.game.summon",
-        click = function()
-            MultiBot.doDotWithTarget(".summon")
-        end,
-    },
-    {
-        label = "Appear",
-        y = 170,
-        icon = "spell_holy_divinespirit",
-        tip = "tips.game.appear",
-        click = function()
-            MultiBot.doDotWithTarget(".appear")
-        end,
-    },
-}
-
 local MEMORY_GEMS = {
     { label = "Red", x = 0, icon = "inv_jewelcrafting_gem_16" },
     { label = "Green", x = 30, icon = "inv_jewelcrafting_gem_13" },
@@ -124,22 +103,6 @@ function MultiBot.BuildGmUI(tMultiBar)
     local mastersFrame = tMultiBar.addFrame("Masters", 36, 38)
     mastersFrame:Hide()
 
-    local portalButton = mastersFrame.addButton("Portal", 0, 34, "inv_box_02", MultiBot.L("tips.game.portal"))
-    local portalFrame = mastersFrame.addFrame("Portal", 30, 36)
-    portalFrame:Hide()
-
-    portalButton.doLeft = function()
-        MultiBot.ShowHideSwitch(portalFrame)
-    end
-
-    for _, definition in ipairs(MEMORY_GEMS) do
-        addMemoryGemButton(portalFrame, definition)
-    end
-
-    for _, definition in ipairs(GM_UI_BUTTONS) do
-        mastersFrame.addButton(definition.label, 0, definition.y, definition.icon, MultiBot.L(definition.tip)).doLeft = definition.click
-    end
-
     mastersFrame.addButton("DelSV", 0, 204, "ability_golemstormbolt", MultiBot.L("tips.game.delsv"), "ActionButtonTemplate")
         .doLeft = function()
             MultiBot.ShowDeleteSVPrompt()
@@ -155,8 +118,6 @@ function MultiBot.BuildGmUI(tMultiBar)
 
     return {
         mainButton = mainButton,
-        mastersFrame = mastersFrame,
-        portalFrame = portalFrame,
-        necroButton = necroButton,
+        mastersFrame = mastersFrame
     }
 end
