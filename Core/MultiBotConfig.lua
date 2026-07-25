@@ -31,6 +31,11 @@ local UI_DEFAULTS = {
   },
 }
 
+local MINIMAP_CONFIG_DEFAULTS = {
+  hide = false,
+  minimapPos = 220,
+}
+
 local DB_DEFAULTS = {
   profile = {
     timers = {
@@ -180,6 +185,33 @@ function MultiBot.Config_Ensure()
   if type(legacyMainBar.autoHideDelay) ~= "number" or legacyMainBar.autoHideDelay <= 0 then
     legacyMainBar.autoHideDelay = UI_DEFAULTS.mainBar.autoHideDelay
   end
+end
+
+function MultiBot.GetMinimapConfig()
+  local minimap = MultiBot.Store and MultiBot.Store.EnsureUIChildStore and MultiBot.Store.EnsureUIChildStore("minimap")
+  if not minimap then
+    return {
+      hide = MINIMAP_CONFIG_DEFAULTS.hide,
+      minimapPos = MINIMAP_CONFIG_DEFAULTS.minimapPos,
+    }
+  end
+
+  if type(minimap.hide) ~= "boolean" then
+    minimap.hide = MINIMAP_CONFIG_DEFAULTS.hide
+  end
+  if type(minimap.minimapPos) ~= "number" then
+    minimap.minimapPos = MINIMAP_CONFIG_DEFAULTS.minimapPos
+  end
+
+  return minimap
+end
+
+function MultiBot.SetMinimapConfig(key, value)
+  local minimap = MultiBot.Store and MultiBot.Store.EnsureUIChildStore and MultiBot.Store.EnsureUIChildStore("minimap")
+  if not minimap then return nil end
+  minimap[key] = value
+
+  return minimap
 end
 
 -- Copy saved values into runtime timers.

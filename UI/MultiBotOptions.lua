@@ -182,13 +182,8 @@ local function buildLegacyOptionsContent(panel)
     if MultiBot.SetMinimapConfig then
       MultiBot.SetMinimapConfig("hide", hide)
     end
-    if MultiBot.Minimap_Refresh then
-      MultiBot.Minimap_Refresh()
-    else
-      local b = _G["MultiBot_MinimapButton"] or MultiBot.MinimapButton
-      if b then
-        if hide then b:Hide() else b:Show() end
-      end
+    if MultiBot.RefreshMinimap then
+      MultiBot.RefreshMinimap()
     end
   end)
 
@@ -600,13 +595,8 @@ function MultiBot.BuildOptionsPanel()
         if MultiBot.SetMinimapConfig then
           MultiBot.SetMinimapConfig("hide", hide and true or false)
         end
-        if MultiBot.Minimap_Refresh then
-          MultiBot.Minimap_Refresh()
-        else
-          local b = _G["MultiBot_MinimapButton"] or MultiBot.MinimapButton
-          if b then
-            if hide then b:Hide() else b:Show() end
-          end
+        if MultiBot.RefreshMinimap then
+          MultiBot.RefreshMinimap()
         end
       end)
       scroll:AddChild(chkMinimapHide)

@@ -158,7 +158,6 @@ local function ensureSavedVariables()
   return MultiBotSave, MultiBotGlobalSave
 end
 
-local MINIMAP_CONFIG_MIGRATION_VERSION = 1
 local STRATA_LEVEL_MIGRATION_VERSION = 1
 local MAIN_VISIBLE_MIGRATION_VERSION = 1
 local QUICK_FRAME_POSITIONS_MIGRATION_VERSION = 1
@@ -167,7 +166,6 @@ local FAVORITES_MIGRATION_VERSION = 1
 local GLOBAL_BOT_STORE_MIGRATION_VERSION = 1
 
 local GLOBAL_BOT_STORE_MIGRATION_KEY = "globalBotStoreVersion"
-local MINIMAP_CONFIG_MIGRATION_KEY = "minimapConfigVersion"
 local STRATA_LEVEL_MIGRATION_KEY = "strataLevelVersion"
 local MAIN_VISIBLE_MIGRATION_KEY = "mainVisibleVersion"
 local QUICK_FRAME_POSITIONS_MIGRATION_KEY = "quickFramePositionsVersion"
@@ -309,83 +307,6 @@ function MultiBot.ClearGlobalBotStore()
       end
     end
   end
-end
-
-local MINIMAP_CONFIG_DEFAULTS = {
-  hide = false,
-  angle = 220,
-}
-
-local function getLegacyMinimapConfig(createIfMissing)
-  local save = ensureSavedVariables()
-  local minimap = save.Minimap
-
-  if type(minimap) ~= "table" then
-    if not createIfMissing then
-      return nil
-    end
-
-    minimap = {}
-    save.Minimap = minimap
-  end
-
-  if type(minimap.hide) ~= "boolean" then
-    minimap.hide = MINIMAP_CONFIG_DEFAULTS.hide
-  end
-  if type(minimap.angle) ~= "number" then
-    minimap.angle = MINIMAP_CONFIG_DEFAULTS.angle
-  end
-
-  return save.Minimap
-end
-
-function MultiBot.GetMinimapConfig()
-  local minimap = MultiBot.Store and MultiBot.Store.GetUIChildStore and MultiBot.Store.GetUIChildStore("minimap")
-  local legacy = getLegacyMinimapConfig(false)
-
-  if not minimap and shouldSyncLegacyUiState(MINIMAP_CONFIG_MIGRATION_KEY, MINIMAP_CONFIG_MIGRATION_VERSION) and legacy then
-    minimap = MultiBot.Store and MultiBot.Store.EnsureUIChildStore and MultiBot.Store.EnsureUIChildStore("minimap")
-  end
-  if minimap then
-    if shouldSyncLegacyUiState(MINIMAP_CONFIG_MIGRATION_KEY, MINIMAP_CONFIG_MIGRATION_VERSION) then
-      if type(minimap.hide) ~= "boolean" then
-        minimap.hide = (legacy and legacy.hide) or MINIMAP_CONFIG_DEFAULTS.hide
-      end
-      if type(minimap.angle) ~= "number" then
-        minimap.angle = (legacy and legacy.angle) or MINIMAP_CONFIG_DEFAULTS.angle
-      end
-      markLegacyUiStateMigrated(MINIMAP_CONFIG_MIGRATION_KEY, MINIMAP_CONFIG_MIGRATION_VERSION)
-
-      -- Purge migrated legacy minimap payload to avoid stale duplicate persistence.
-      local save = ensureSavedVariables()
-      save.Minimap = nil
-    end
-
-    if type(minimap.hide) ~= "boolean" then
-      minimap.hide = MINIMAP_CONFIG_DEFAULTS.hide
-    end
-    if type(minimap.angle) ~= "number" then
-      minimap.angle = MINIMAP_CONFIG_DEFAULTS.angle
-    end
-    return minimap
-  end
-
-  return legacy or { hide = MINIMAP_CONFIG_DEFAULTS.hide, angle = MINIMAP_CONFIG_DEFAULTS.angle }
-end
-
-function MultiBot.SetMinimapConfig(key, value)
-  local minimap = MultiBot.Store and MultiBot.Store.EnsureUIChildStore and MultiBot.Store.EnsureUIChildStore("minimap")
-  if not minimap then
-    minimap = getLegacyMinimapConfig(true)
-  end
-  minimap[key] = value
-
-  if shouldSyncLegacyUiState(MINIMAP_CONFIG_MIGRATION_KEY, MINIMAP_CONFIG_MIGRATION_VERSION) then
-    local legacy = getLegacyMinimapConfig(true)
-    legacy[key] = value
-  end
-
-  return minimap
 end
 
 local STRATA_LEVEL_DEFAULT = "HIGH"
@@ -1050,7 +971,7 @@ local LIFECYCLE_ENABLE_STEPS = {
   { name = "RegisterCoreEventsOnce", passSelf = true },
   { name = "Throttle_Init" },
   { name = "ApplyGlobalStrata" },
-  { name = "Minimap_Refresh" },
+  { name = "RefreshMinimap" },
 }
 
 local function runLifecycleSteps(self, steps)
