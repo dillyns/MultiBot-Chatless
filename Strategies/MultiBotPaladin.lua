@@ -52,6 +52,7 @@ local PALADIN_AURA_ICONS = {
 local PLAYBOOK_BUTTONS  = { PALADIN_ROLE_HEAL, PALADIN_ROLE_DPS, PALADIN_ROLE_TANK, PALADIN_ROLE_OFFHEAL }
 local BLESSING_BUTTONS  = { PALADIN_BUFF_BHEALTH, PALADIN_BUFF_BMANA, PALADIN_BUFF_BSTATS, PALADIN_BUFF_BDPS }
 local AURA_BUTTONS      = { PALADIN_AURA_BSPEED, PALADIN_AURA_RFIRE, PALADIN_AURA_RFROST, PALADIN_AURA_RSHADOW, PALADIN_AURA_BAOE, PALADIN_AURA_BARMOR, PALADIN_AURA_BCAST }
+local NC_AURA_BUTTONS   = { "nc" .. PALADIN_AURA_BSPEED, "nc" .. PALADIN_AURA_RFIRE, "nc" .. PALADIN_AURA_RFROST, "nc" .. PALADIN_AURA_RSHADOW, "nc" .. PALADIN_AURA_BAOE, "nc" .. PALADIN_AURA_BARMOR, "nc" .. PALADIN_AURA_BCAST }
 
 function MultiBot.addPaladin(pFrame, pCombat, pNormal)
 	MultiBot.AddNonCombatControl(pFrame, 0, pNormal)
@@ -99,13 +100,13 @@ function MultiBot.addPaladin(pFrame, pCombat, pNormal)
 	local nonCombatAuraFrame = pFrame.addFrame("NonCombatAura", -122, 30)
 	nonCombatAuraFrame:Hide()
 
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BSPEED,  0,   PALADIN_AURA_ICONS[PALADIN_AURA_BSPEED],  MultiBot.L("tips.paladin.aura.bspeed"),  "nc", PALADIN_AURA_BSPEED,  AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RFIRE,   26,  PALADIN_AURA_ICONS[PALADIN_AURA_RFIRE],   MultiBot.L("tips.paladin.aura.rfire"),   "nc", PALADIN_AURA_RFIRE,   AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RFROST,  52,  PALADIN_AURA_ICONS[PALADIN_AURA_RFROST],  MultiBot.L("tips.paladin.aura.rfrost"),  "nc", PALADIN_AURA_RFROST,  AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_RSHADOW, 78,  PALADIN_AURA_ICONS[PALADIN_AURA_RSHADOW], MultiBot.L("tips.paladin.aura.rshadow"), "nc", PALADIN_AURA_RSHADOW, AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BAOE,    104, PALADIN_AURA_ICONS[PALADIN_AURA_BAOE],    MultiBot.L("tips.paladin.aura.baoe"),    "nc", PALADIN_AURA_BAOE,    AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BARMOR,  130, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR],  MultiBot.L("tips.paladin.aura.barmor"),  "nc", PALADIN_AURA_BARMOR,  AURA_BUTTONS)
-	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", PALADIN_AURA_BCAST,   156, PALADIN_AURA_ICONS[PALADIN_AURA_BCAST],   MultiBot.L("tips.paladin.aura.bcast"),   "nc", PALADIN_AURA_BCAST,   AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_BSPEED,  0,   PALADIN_AURA_ICONS[PALADIN_AURA_BSPEED],  MultiBot.L("tips.paladin.aura.bspeed"),  "nc", PALADIN_AURA_BSPEED,  NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_RFIRE,   26,  PALADIN_AURA_ICONS[PALADIN_AURA_RFIRE],   MultiBot.L("tips.paladin.aura.rfire"),   "nc", PALADIN_AURA_RFIRE,   NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_RFROST,  52,  PALADIN_AURA_ICONS[PALADIN_AURA_RFROST],  MultiBot.L("tips.paladin.aura.rfrost"),  "nc", PALADIN_AURA_RFROST,  NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_RSHADOW, 78,  PALADIN_AURA_ICONS[PALADIN_AURA_RSHADOW], MultiBot.L("tips.paladin.aura.rshadow"), "nc", PALADIN_AURA_RSHADOW, NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_BAOE,    104, PALADIN_AURA_ICONS[PALADIN_AURA_BAOE],    MultiBot.L("tips.paladin.aura.baoe"),    "nc", PALADIN_AURA_BAOE,    NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_BARMOR,  130, PALADIN_AURA_ICONS[PALADIN_AURA_BARMOR],  MultiBot.L("tips.paladin.aura.barmor"),  "nc", PALADIN_AURA_BARMOR,  NC_AURA_BUTTONS)
+	MultiBot.AddExclusiveButton(nonCombatAuraFrame, "NonCombatAura", "nc" .. PALADIN_AURA_BCAST,   156, PALADIN_AURA_ICONS[PALADIN_AURA_BCAST],   MultiBot.L("tips.paladin.aura.bcast"),   "nc", PALADIN_AURA_BCAST,   NC_AURA_BUTTONS)
 
 	-- COMBAT AURA --
 
@@ -165,16 +166,16 @@ function MultiBot.addPaladin(pFrame, pCombat, pNormal)
 
 	-- NonCombatAura state --
 	local naura = nil
-	if     MultiBot.isInside(pNormal, PALADIN_AURA_BSPEED)  then naura = PALADIN_AURA_BSPEED  nonCombatAuraFrame.getButton(PALADIN_AURA_BSPEED).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFIRE)   then naura = PALADIN_AURA_RFIRE   nonCombatAuraFrame.getButton(PALADIN_AURA_RFIRE).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFROST)  then naura = PALADIN_AURA_RFROST  nonCombatAuraFrame.getButton(PALADIN_AURA_RFROST).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RSHADOW) then naura = PALADIN_AURA_RSHADOW nonCombatAuraFrame.getButton(PALADIN_AURA_RSHADOW).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BAOE)    then naura = PALADIN_AURA_BAOE    nonCombatAuraFrame.getButton(PALADIN_AURA_BAOE).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BARMOR)  then naura = PALADIN_AURA_BARMOR  nonCombatAuraFrame.getButton(PALADIN_AURA_BARMOR).setEnable()
-	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BCAST)   then naura = PALADIN_AURA_BCAST   nonCombatAuraFrame.getButton(PALADIN_AURA_BCAST).setEnable()
+	if     MultiBot.isInside(pNormal, PALADIN_AURA_BSPEED)  then naura = PALADIN_AURA_BSPEED  nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_BSPEED).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFIRE)   then naura = PALADIN_AURA_RFIRE   nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_RFIRE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RFROST)  then naura = PALADIN_AURA_RFROST  nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_RFROST).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_RSHADOW) then naura = PALADIN_AURA_RSHADOW nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_RSHADOW).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BAOE)    then naura = PALADIN_AURA_BAOE    nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_BAOE).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BARMOR)  then naura = PALADIN_AURA_BARMOR  nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_BARMOR).setEnable()
+	elseif MultiBot.isInside(pNormal, PALADIN_AURA_BCAST)   then naura = PALADIN_AURA_BCAST   nonCombatAuraFrame.getButton("nc" .. PALADIN_AURA_BCAST).setEnable()
 	end
 	if naura then
-		MultiBot.RestoreExclusiveGroup(pFrame, "NonCombatAura", PALADIN_AURA_ICONS[naura], "nc", naura, AURA_BUTTONS)
+		MultiBot.RestoreExclusiveGroup(pFrame, "NonCombatAura", PALADIN_AURA_ICONS[naura], "nc", naura, NC_AURA_BUTTONS)
 	end
 
 	-- CombatAura state --

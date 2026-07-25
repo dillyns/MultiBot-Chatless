@@ -28,6 +28,7 @@ local HUNTER_BUFF_ICONS = {
 }
 
 local PLAYBOOK_BUTTONS = { HUNTER_SPEC_BM, HUNTER_SPEC_MM, HUNTER_SPEC_SURV }
+local NC_BUFF_BUTTONS  = { "nc" .. HUNTER_BUFF_BSPEED, "nc" .. HUNTER_BUFF_BDPS, "nc" .. HUNTER_BUFF_RNATURE }
 local BUFF_BUTTONS     = { HUNTER_BUFF_BSPEED, HUNTER_BUFF_BDPS, HUNTER_BUFF_RNATURE }
 
 function MultiBot.addHunter(pFrame, pCombat, pNormal)
@@ -52,10 +53,10 @@ function MultiBot.addHunter(pFrame, pCombat, pNormal)
 
 	pFrame.addButton("HunterControl", -90, 0, "INV_Glyph_MajorHunter", MultiBot.L("tips.hunter.strategy.master"))
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("HunterControlFrame"))
+		MultiBot.ShowHideSwitch(pButton.getFrame("HunterControl"))
 	end
 
-	local tControlFrame = pFrame.addFrame("HunterControlFrame", -92, 30)
+	local tControlFrame = pFrame.addFrame("HunterControl", -92, 30)
 	tControlFrame:Hide()
 
 	local trapweaveon  = "co +" .. HUNTER_STRAT_TRAP_WEAVE
@@ -65,14 +66,26 @@ function MultiBot.addHunter(pFrame, pCombat, pNormal)
 		MultiBot.OnOffActionToTarget(pButton, trapweaveon, trapweaveoff, pButton.getName())
 	end
 
+	-- NON-COMBAT BUFFS --
+	pFrame.addButton("HunterNCBuffControl", -120, 0, HUNTER_BUFF_ICONS[HUNTER_BUFF_BDPS], MultiBot.L("tips.hunter.buff.master"))
+	.doLeft = function(pButton)
+		MultiBot.ShowHideSwitch(pButton.getFrame("HunterNCBuffControl"))
+	end
+	local tNCBuffFrame = pFrame.addFrame("HunterNCBuffControl", -122, 30)
+	tNCBuffFrame:Hide()
+
+	MultiBot.AddExclusiveButton(tNCBuffFrame, "HunterNCBuffControl", "nc" .. HUNTER_BUFF_BSPEED,   0,  HUNTER_BUFF_ICONS[HUNTER_BUFF_BSPEED],  MultiBot.L("tips.hunter.buff.bspeed"),  "nc", HUNTER_BUFF_BSPEED,  NC_BUFF_BUTTONS)
+	MultiBot.AddExclusiveButton(tNCBuffFrame, "HunterNCBuffControl", "nc" .. HUNTER_BUFF_BDPS,    26,  HUNTER_BUFF_ICONS[HUNTER_BUFF_BDPS],    MultiBot.L("tips.hunter.buff.bdps"),    "nc", HUNTER_BUFF_BDPS,    NC_BUFF_BUTTONS)
+	MultiBot.AddExclusiveButton(tNCBuffFrame, "HunterNCBuffControl", "nc" .. HUNTER_BUFF_RNATURE, 52,  HUNTER_BUFF_ICONS[HUNTER_BUFF_RNATURE], MultiBot.L("tips.hunter.buff.rnature"), "nc", HUNTER_BUFF_RNATURE, NC_BUFF_BUTTONS)
+
 	-- BUFFS --
 
-	pFrame.addButton("HunterBuffControl", -120, 0, HUNTER_BUFF_ICONS[HUNTER_BUFF_BDPS], MultiBot.L("tips.hunter.buff.master"))
+	pFrame.addButton("HunterBuffControl", -150, 0, HUNTER_BUFF_ICONS[HUNTER_BUFF_BDPS], MultiBot.L("tips.hunter.buff.master"))
 	.doLeft = function(pButton)
-		MultiBot.ShowHideSwitch(pButton.getFrame("HunterBuffControlFrame"))
+		MultiBot.ShowHideSwitch(pButton.getFrame("HunterBuffControl"))
 	end
 
-	local tBuffFrame = pFrame.addFrame("HunterBuffControlFrame", -122, 30)
+	local tBuffFrame = pFrame.addFrame("HunterBuffControl", -152, 30)
 	tBuffFrame:Hide()
 
 	MultiBot.AddExclusiveButton(tBuffFrame, "HunterBuffControl", HUNTER_BUFF_BSPEED,   0,  HUNTER_BUFF_ICONS[HUNTER_BUFF_BSPEED],  MultiBot.L("tips.hunter.buff.bspeed"),  "co", HUNTER_BUFF_BSPEED,  BUFF_BUTTONS)
@@ -98,6 +111,15 @@ function MultiBot.addHunter(pFrame, pCombat, pNormal)
 	end
 	if buff then
 		MultiBot.RestoreExclusiveGroup(pFrame, "HunterBuffControl", HUNTER_BUFF_ICONS[buff], "co", buff, BUFF_BUTTONS)
+	end
+
+	local ncbuff = nil
+	if     MultiBot.isInside(pNormal, HUNTER_BUFF_BSPEED)  then ncbuff = HUNTER_BUFF_BSPEED  tNCBuffFrame.getButton("nc" .. HUNTER_BUFF_BSPEED).setEnable()
+	elseif MultiBot.isInside(pNormal, HUNTER_BUFF_BDPS)    then ncbuff = HUNTER_BUFF_BDPS    tNCBuffFrame.getButton("nc" .. HUNTER_BUFF_BDPS).setEnable()
+	elseif MultiBot.isInside(pNormal, HUNTER_BUFF_RNATURE) then ncbuff = HUNTER_BUFF_RNATURE tNCBuffFrame.getButton("nc" .. HUNTER_BUFF_RNATURE).setEnable()
+	end
+	if ncbuff then
+		MultiBot.RestoreExclusiveGroup(pFrame, "HunterNCBuffControl", HUNTER_BUFF_ICONS[ncbuff], "nc", ncbuff, NC_BUFF_BUTTONS)
 	end
 
 	if MultiBot.isInside(pCombat, HUNTER_STRAT_TRAP_WEAVE) then tControlFrame.getButton("TrapWeave").setEnable() end
