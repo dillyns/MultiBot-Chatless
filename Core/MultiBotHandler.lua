@@ -212,9 +212,6 @@ local LAYOUT_STATE_KEYS = {
 	"StatsPoint",
 	"RewardPoint",
 	"TalentPoint",
-	"MemoryGem1",
-	"MemoryGem2",
-	"MemoryGem3",
 }
 
 local function getLegacyStateStore(createIfMissing)
@@ -698,19 +695,6 @@ local POINT_FRAME_BINDINGS = {
 	{ saveKey = "TalentPoint", getFrame = function() return MultiBot.talent end },
 }
 
-local PORTAL_MEMORY_BINDINGS = {
-	{ saveKey = "MemoryGem1", color = "Red" },
-	{ saveKey = "MemoryGem2", color = "Green" },
-	{ saveKey = "MemoryGem3", color = "Blue" },
-}
-
-local function getPortalButton(color)
-	local multiBar = MultiBot.frames and MultiBot.frames["MultiBar"]
-	local masters = multiBar and multiBar.frames and multiBar.frames["Masters"]
-	local portal = masters and masters.frames and masters.frames["Portal"]
-	return portal and portal.buttons and portal.buttons[color]
-end
-
 local function saveBoundFramePoints()
 	local function canReadPoint(frame)
 		if not frame then
@@ -745,27 +729,6 @@ local function restoreBoundFramePoints()
 			pointY = tonumber(pointY)
 			if pointX and pointY then
 				frame.setPoint(pointX, pointY)
-			end
-		end
-	end
-end
-
-local function savePortalMemory()
-	for _, binding in ipairs(PORTAL_MEMORY_BINDINGS) do
-		local portalButton = getPortalButton(binding.color)
-		if portalButton then
-			setSavedLayoutValue(binding.saveKey, MultiBot.SavePortal(portalButton))
-		end
-	end
-end
-
-local function restorePortalMemory()
-	for _, binding in ipairs(PORTAL_MEMORY_BINDINGS) do
-		local memory = getSavedLayoutValue(binding.saveKey)
-		if memory ~= nil then
-			local portalButton = getPortalButton(binding.color)
-			if portalButton then
-				MultiBot.LoadPortal(portalButton, memory)
 			end
 		end
 	end
@@ -1344,7 +1307,6 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 	end
 	if(event == "PLAYER_LOGOUT") then
 		saveBoundFramePoints()
-		savePortalMemory()
 
 		local multiBar = MultiBot.frames and MultiBot.frames["MultiBar"]
 		local leftButtons = multiBar and multiBar.frames and multiBar.frames["Left"] and multiBar.frames["Left"].buttons
@@ -1381,8 +1343,6 @@ function MultiBot.HandleMultiBotEvent(event, ...)
 	          local savedVisible = (MultiBot.GetMainUIVisibleConfig and MultiBot.GetMainUIVisibleConfig())
 	          MultiBot.ToggleMainUIVisibility(savedVisible ~= false)
 	        end
-
-		restorePortalMemory()
 
 		restoreMainBarSavedStates()
 

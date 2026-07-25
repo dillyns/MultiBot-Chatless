@@ -1,11 +1,5 @@
 if not MultiBot then return end
 
-local MEMORY_GEMS = {
-    { label = "Red", x = 0, icon = "inv_jewelcrafting_gem_16" },
-    { label = "Green", x = 30, icon = "inv_jewelcrafting_gem_13" },
-    { label = "Blue", x = 60, icon = "inv_jewelcrafting_gem_17" },
-}
-
 local function ensureDeleteSavedVariablesDialog()
     StaticPopupDialogs["MULTIBOT_DELETE_SV"] = {
         text = MultiBot.L("tips.game.delsvwarning"),
@@ -28,50 +22,6 @@ local function ensureDeleteSavedVariablesDialog()
         whileDead = true,
         hideOnEscape = true,
     }
-end
-
-local function addMemoryGemButton(portalFrame, definition)
-    local gem = portalFrame.addButton(
-        definition.label,
-        definition.x,
-        0,
-        definition.icon,
-        MultiBot.doReplace(MultiBot.L("tips.game.memory"), "ABOUT", MultiBot.L("info.location"))
-    )
-
-    gem:setDisable()
-    gem.goMap, gem.goX, gem.goY, gem.goZ = "", 0, 0, 0
-
-    gem.doRight = function(button)
-        if not button.state then
-            SendChatMessage(MultiBot.L("info.itlocation"), "SAY")
-            return
-        end
-
-        button.tip = MultiBot.doReplace(MultiBot.L("tips.game.memory"), "ABOUT", MultiBot.L("info.location"))
-        button:setDisable()
-    end
-
-    gem.doLeft = function(button)
-        local player = MultiBot.getBot(UnitName("player"))
-        player.waitFor = player.waitFor or ""
-
-        if player.waitFor ~= "" then
-            SendChatMessage(MultiBot.L("info.saving"), "SAY")
-            return
-        end
-
-        if button.state then
-            SendChatMessage(".go xyz " .. button.goX .. " " .. button.goY .. " " .. button.goZ .. " " .. button.goMap, "SAY")
-            return
-        end
-
-        player.memory = button
-        player.waitFor = "COORDS"
-        SendChatMessage(".gps", "SAY")
-    end
-
-    return gem
 end
 
 function MultiBot.ShowDeleteSVPrompt()
