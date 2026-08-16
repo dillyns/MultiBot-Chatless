@@ -1,9 +1,5 @@
 local MultiBot = _G.MultiBot
 if not MultiBot then return end
-local register = MultiBot.RegisterLocaleStrings
-if type(register) ~= "function" then
-  return
-end
 
 local enUSValues = {
   ["lootmaster.title"] = "MultiBot Loot Master",
@@ -914,8 +910,4 @@ local enUSValues = {
   ["tips.outfits.equip"] = "Left click: Equip\nRight click: Replace",
 }
 
-register("enUS", enUSValues, true)
-
-if type(MultiBot.ApplyLocaleKeyValues) == "function" then
-  MultiBot.ApplyLocaleKeyValues(enUSValues)
-end
+MultiBot.RegisterLocaleStrings("enUS", enUSValues)
