@@ -1,12 +1,17 @@
 local MultiBot = _G.MultiBot
-if not MultiBot then return end
+if not MultiBot then
+  return
+end
 
-local aceLocale = LibStub and LibStub("AceLocale-3.0", true)
-local cachedLocale
+local AceLocale = LibStub("AceLocale-3.0")
+local Locale = {}
 
-function MultiBot.RegisterLocaleStrings(locale, values)
+MultiBot.Locale = Locale
+
+function Locale.RegisterStrings(locale, values)
   local isDefault = locale == "enUS"
-  local localeTable = aceLocale:NewLocale("MultiBot", locale, isDefault)
+  local localeTable = AceLocale:NewLocale("MultiBot", locale, isDefault)
+
   if not localeTable then
     return
   end
@@ -16,11 +21,8 @@ function MultiBot.RegisterLocaleStrings(locale, values)
   end
 end
 
-function MultiBot.GetLocaleString(key, fallback)
-  if not cachedLocale then
-    cachedLocale = aceLocale:GetLocale("MultiBot", true)
-  end
-  return cachedLocale and rawget(cachedLocale, key) or fallback or key
-end
+function Locale.GetString(key, fallback)
+  local localeTable = AceLocale:GetLocale("MultiBot", true)
 
-MultiBot.L = MultiBot.GetLocaleString
+  return localeTable and rawget(localeTable, key) or fallback or key
+end

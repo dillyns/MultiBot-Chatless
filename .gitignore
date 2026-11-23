@@ -1,3 +1,8 @@
+# Claude AI notes
+.claude/
+.github/instructions/
+Core/Old/
+
 # Compiled Lua sources
 luac.out
 

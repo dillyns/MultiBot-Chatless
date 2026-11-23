@@ -6,7 +6,7 @@ exclude_files = {
 }
 
 globals = {
-    "MultiBot", "GetLocale", "GetSpellInfo", "GetSpellLink", "MultiBotSave", "SendChatMessage", "CreateFrame", "UIParent",
+	"MultiBot", "GetLocale", "GetSpellInfo", "GetSpellLink", "SendChatMessage", "CreateFrame", "UIParent",
     "MultiBotGlobalSave", "DEFAULT_CHAT_FRAME", "C_Timer_After", "IsInRaid", "GetNumRaidMembers", "IsInGroup", "GetNumPartyMembers",
     "GetNumGroupMembers", "GetNumSubgroupMembers", "lvl", "C_Timer", "UnitClass", "InspectUnit", "InspectFrame", "HideUIPanel",
     "tinsert", "strtrim", "wipe", "UnitName", "GetRealmName", "GameTooltip", "GameTooltip_Hide", "MultiBotDB", "SlashCmdList",
@@ -23,7 +23,7 @@ globals = {
 	"InterfaceOptions_AddCategory", "UIDropDownMenu_JustifyText", "UIDropDownMenu_SetSelectedValue", "UIDropDownMenu_SetButtonWidth", "UIDropDownMenu_SetWidth",
 	"UIDropDownMenu_Initialize", "UIDropDownMenu_AddButton", "UIDropDownMenu_CreateInfo", "UIDropDownMenu_SetSelectedID", "SetRaidSubgroup", "GetRaidRosterInfo",
 	"MouseIsOver", "UninviteUnit", "UnitInRaid", "UnitInGroup", "GetNumQuestChoices", "GetQuestItemLink", "GetQuestItemInfo", "SwapRaidSubgroup", "WorldMapButton",
-	"UnitIsConnected", "event", "arg1", "arg2", "MultiBotSaved", "GetUnitName", "GetTime", "GetNumMacros", "ReloadUI", "GetQuestLogLeaderBoard", "AbandonQuest",
+	"UnitIsConnected", "event", "arg1", "arg2", "GetUnitName", "GetTime", "GetNumMacros", "ReloadUI", "GetQuestLogLeaderBoard", "AbandonQuest",
 	"GetMacroIconInfo", "GetPlayerInfoByGUID", "UnitGUID", "ConvertToRaid", "HandleQuestsAllResponse", "UnitXPMax", "UnitXP", "UnitManaMax", "UnitMana",
 	"GetCurrentMapContinent", "GetCurrentMapAreaID", "SLASH_MULTIBOT1", "SLASH_MULTIBOT2", "SLASH_MULTIBOT3", "SLASH_MULTIBOTOPTIONS1", "SLASH_MBFAKEGM1",
 	"SLASH_MBCLASS1", "SLASH_MBCLASSTEST1", "UIDropDownMenu_SetText", "UIDropDownMenu_SetWidth", "UIDropDownMenu_Initialize", "UIDropDownMenu_CreateInfo",
