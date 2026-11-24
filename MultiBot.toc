@@ -33,6 +33,8 @@ Core\MultiBotStrategies.lua
 Core\MultiBotClassStrategies.lua
 Core\MultiBotBridge.lua
 UI\MultiBotClassUI.lua
+UI\MultiBotOptionsUI.lua
 UI\MultiBotActiveRosterUI.lua
 UI\MultiBotMainUI.lua
+Core\Features\MultiBotRewards.lua
 Core\MultiBotLifecycle.lua

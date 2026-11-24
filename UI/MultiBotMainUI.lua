@@ -48,7 +48,9 @@ function MainUI.Initialize()
     frame,
     "MultiBotOptionsButton",
     MAIN_BUTTON_ICON,
-    nil,
+    function()
+      MultiBot.OptionsUI.Toggle()
+    end,
     nil,
     MultiBot.Locale.GetString("main.options.tip")
   )
@@ -139,6 +141,7 @@ function MainUI.Initialize()
   MainUI.frame = frame
   MainUI.activeRosterButton = activeRosterButton
 
+  MultiBot.OptionsUI.Initialize(frame)
   MultiBot.ActiveRosterUI.Initialize(frame)
 
   MainUI.ApplyFrameStrata()
